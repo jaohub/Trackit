@@ -1,0 +1,16 @@
+venv/
+*.db
+__pycache__/
+.env
+*Isso diz ao Git: "Ignore essas pastas, elas são só pro meu uso local". Repare que, assim que você salvar esse arquivo, o número de "alterações" no ícone do Git vai cair de 2000 para apenas 2 ou 3.*
+
+---
+
+### 6. Subir o "Terreno Preparado"
+Agora, faça o processo visual que você aprendeu:
+1.  Vá no ícone do Git.
+2.  Dê o **+** no `.gitignore`, no `requirements.txt` e no seu `app.py`.
+3.  Commit: `"Configuração inicial: venv e dependências"`.
+4.  **Push** (Se estiver na branch, depois faça o Merge no site).
+
+**Me avise quando o terminal mostrar o `(venv)` e você tiver criado o `.gitignore`!** Aí estaremos prontos para escrever as primeiras linhas do banco de dados de ativos.

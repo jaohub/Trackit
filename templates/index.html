@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Trackit - Gestão de Ativos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Trackit: Gestão de Laboratórios e Ativos</h1>
+
+    <!-- Formulário para adicionar novos itens -->
+    <form action="/adicionar" method="POST">
+        <input type="text" name="nome" placeholder="Nome do Equipamento" required>
+        <input type="text" name="patrimonio" placeholder="Nº Patrimônio" required>
+        <input type="text" name="laboratorio" placeholder="Laboratório/Setor" required>
+        <select name="status">
+            <option value="Ativo">Ativo</option>
+            <option value="Manutenção">Manutenção</option>
+            <option value="Baixado">Baixado</option>
+        </select>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <hr>
+
+    <!-- Tabela de exibição dos dados -->
+    <table border="1" width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Patrimônio</th>
+                <th>Laboratório</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ativo in ativos %}
+            <tr>
+                <td>{{ ativo.id }}</td>
+                <td>{{ ativo.nome }}</td>
+                <td>{{ ativo.patrimonio }}</td>
+                <td>{{ ativo.laboratorio }}</td>
+                <td>{{ ativo.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
