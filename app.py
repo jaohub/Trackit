@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -44,3 +45,7 @@ def adicionar():
 
 if __name__ == '__main__':
     app.run(debug=True)
+=======
+print("Oi mundo!")
+print("hmjyk,uyki!")
+>>>>>>> main
