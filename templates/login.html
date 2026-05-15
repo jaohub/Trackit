@@ -2,17 +2,27 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="login-container">
-        <h1>Trackit</h1>
-        <p>Gestão de Ativos SENAI</p>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Trackit</h1>
+            <p>Gestão de Ativos SENAI</p>
+        </div>
         <form action="/login" method="POST">
-            <input type="text" name="usuario" placeholder="Usuário" required>
-            <input type="password" name="senha" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
+            <div class="input-group">
+                <label>Usuário</label>
+                <input type="text" name="usuario" placeholder="Seu usuário" required>
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" name="senha" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-login">Entrar</button>
         </form>
     </div>
 </body>

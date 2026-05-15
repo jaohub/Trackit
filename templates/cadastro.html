@@ -2,33 +2,51 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Ativo - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body>
-    <nav>
-        <a href="{{ url_for('index') }}">Voltar ao Painel</a>
-    </nav>
+<body class="cadastro-page">
+    <div class="container">
+        <nav class="sidebar-mock">
+            <a href="{{ url_for('index') }}" class="btn-back">← Voltar ao Painel</a>
+        </nav>
 
-    <h1>Cadastrar Novo Equipamento</h1>
-    
-    <form action="/adicionar" method="POST">
-        <label>Nome do Equipamento:</label>
-        <input type="text" name="nome" required><br>
+        <main class="content">
+            <div class="form-card">
+                <h2>Novo Equipamento</h2>
+                <p>Preencha os dados para registrar o patrimônio no sistema.</p>
 
-        <label>Número de Patrimônio:</label>
-        <input type="text" name="patrimonio" required><br>
+                <form action="/adicionar" method="POST">
+                    <div class="input-group">
+                        <label>Nome do Equipamento</label>
+                        <input type="text" name="nome" placeholder="Ex: Monitor AOC 180hz" required>
+                    </div>
 
-        <label>Laboratório/Setor:</label>
-        <input type="text" name="laboratorio" required><br>
+                    <div class="input-group">
+                        <label>Número de Patrimônio</label>
+                        <input type="text" name="patrimonio" placeholder="Ex: SENAI-12345" required>
+                    </div>
 
-        <label>Status Inicial:</label>
-        <select name="status">
-            <option value="Ativo">Ativo</option>
-            <option value="Manutenção">Manutenção</option>
-        </select><br>
+                    <div class="input-group">
+                        <label>Laboratório / Setor</label>
+                        <input type="text" name="laboratorio" placeholder="Ex: Laboratório de Informática 02" required>
+                    </div>
 
-        <button type="submit">Salvar Ativo</button>
-    </form>
+                    <div class="input-group">
+                        <label>Status do Ativo</label>
+                        <select name="status">
+                            <option value="Ativo">Ativo / Operacional</option>
+                            <option value="Manutenção">Em Manutenção</option>
+                            <option value="Baixado">Baixado / Fora de Uso</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-save">Confirmar Cadastro</button>
+                </form>
+            </div>
+        </main>
+    </div>
 </body>
 </html>

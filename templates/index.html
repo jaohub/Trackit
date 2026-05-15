@@ -4,47 +4,65 @@
     <meta charset="UTF-8">
     <title>Trackit - Gestão de Ativos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Trackit: Gestão de Laboratórios e Ativos</h1>
+    <div class="dashboard-container">
+        <header class="header-actions">
+            <div>
+                <h1>Painel de Controlo</h1>
+                <p>Laboratórios e Equipamentos</p>
+            </div>
+            <a href="{{ url_for('cadastro') }}" class="btn-new">+ Novo Equipamento</a>
+        </header>
 
-    <!-- Formulário para adicionar novos itens -->
-    <form action="/adicionar" method="POST">
-        <input type="text" name="nome" placeholder="Nome do Equipamento" required>
-        <input type="text" name="patrimonio" placeholder="Nº Patrimônio" required>
-        <input type="text" name="laboratorio" placeholder="Laboratório/Setor" required>
-        <select name="status">
-            <option value="Ativo">Ativo</option>
-            <option value="Manutenção">Manutenção</option>
-            <option value="Baixado">Baixado</option>
-        </select>
-        <button type="submit">Cadastrar</button>
-    </form>
-
-    <hr>
-
-    <!-- Tabela de exibição dos dados -->
-    <table border="1" width="100%">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Patrimônio</th>
-                <th>Laboratório</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ativo in ativos %}
-            <tr>
-                <td>{{ ativo.id }}</td>
-                <td>{{ ativo.nome }}</td>
-                <td>{{ ativo.patrimonio }}</td>
-                <td>{{ ativo.laboratorio }}</td>
-                <td>{{ ativo.status }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <section class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Património</th>
+                        <th>Status</th>
+                        <th>Responsável</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ativo in ativos %}
+                    <tr>
+                        <td><strong>{{ ativo.nome }}</strong></td>
+                        <td>{{ ativo.patrimonio }}</td>
+                        <td>
+                            <span class="status-pill {% if ativo.status == 'Disponível' %}status-disponivel{% else %}status-uso{% endif %}">
+                                {{ ativo.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if ativo.usuario_id %}
+                                {{ ativo.responsavel.nome }}
+                            {% else %}
+                                <span style="color: #ccc;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ativo.status == 'Disponível' %}
+                            <form action="{{ url_for('retirar', id=ativo.id) }}" method="POST" style="display: flex; gap: 5px;">
+                                <select name="usuario_id" class="select-user">
+                                    {% for user in usuarios %}
+                                    <option value="{{ user.id }}">{{ user.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-action">Retirar</button>
+                            </form>
+                            {% else %}
+                            <a href="{{ url_for('devolver', id=ativo.id) }}" class="btn-action-success">Devolver ao Lab</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
 </body>
 </html>
