@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Trackit - Gestão de Ativos</title>
+    <title>Trackit - Painel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -10,20 +10,21 @@
     <div class="dashboard-container">
         <header class="header-actions">
             <div>
-                <h1>Painel de Controlo</h1>
-                <p>Laboratórios e Equipamentos</p>
+                <h1>Olá, {{ session['user_nome'] }}! 👋</h1>
+                <p>Consulte o estoque e retire os equipamentos necessários</p>
             </div>
-            <a href="{{ url_for('cadastro') }}" class="btn-new">+ Novo Equipamento</a>
+            <a href="{{ url_for('logout') }}" class="btn-new" style="background-color: #dc3545;">Sair</a>
         </header>
 
-        <section class="table-card">
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #333;">Equipamentos nos Laboratórios</h2>
+        <section class="table-card" style="margin-bottom: 40px;">
             <table>
                 <thead>
                     <tr>
                         <th>Equipamento</th>
-                        <th>Património</th>
-                        <th>Status</th>
-                        <th>Responsável</th>
+                        <th>Patrimônio</th>
+                        <th>Laboratório</th>
+                        <th>Estoque Disponível</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -32,34 +33,56 @@
                     <tr>
                         <td><strong>{{ ativo.nome }}</strong></td>
                         <td>{{ ativo.patrimonio }}</td>
+                        <td>{{ ativo.laboratorio }}</td>
                         <td>
-                            <span class="status-pill {% if ativo.status == 'Disponível' %}status-disponivel{% else %}status-uso{% endif %}">
-                                {{ ativo.status }}
+                            <span class="status-pill {% if ativo.qtd_disponivel > 0 %}status-disponivel{% else %}status-uso{% endif %}">
+                                {{ ativo.qtd_disponivel }} de {{ ativo.quantidade }} unidades livres
                             </span>
                         </td>
                         <td>
-                            {% if ativo.usuario_id %}
-                                {{ ativo.responsavel.nome }}
-                            {% else %}
-                                <span style="color: #ccc;">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if ativo.status == 'Disponível' %}
-                            <form action="{{ url_for('retirar', id=ativo.id) }}" method="POST" style="display: flex; gap: 5px;">
-                                <select name="usuario_id" class="select-user">
-                                    {% for user in usuarios %}
-                                    <option value="{{ user.id }}">{{ user.nome }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn-action">Retirar</button>
+                            {% if ativo.qtd_disponivel > 0 %}
+                            <form action="{{ url_for('retirar', id=ativo.id) }}" method="POST" style="display: flex; gap: 5px; align-items: center;">
+                                <input type="number" name="qtd_a_pegar" value="1" min="1" max="{{ ativo.qtd_disponivel }}" style="width: 50px; padding: 4px; border-radius: 4px; border: 1px solid #ccc;" required>
+                                <button type="submit" class="btn-action">Pegar</button>
                             </form>
-                            {% else %}
-                            <a href="{{ url_for('devolver', id=ativo.id) }}" class="btn-action-success">Devolver ao Lab</a>
+                            {% else airs %}
+                                <span style="color: #dc3545; font-size: 13px; font-weight: 600;">Esgotado</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #333;">Itens em sua Posse</h2>
+        <section class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Laboratório de Origem</th>
+                        <th>Quantidade Retirada</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if meus_emprestimos %}
+                        {% for emp in meus_emprestimos %}
+                        <tr>
+                            <td><strong>{{ emp.ativo.nome }}</strong></td>
+                            <td>{{ emp.ativo.laboratorio }}</td>
+                            <td><span style="color: #007bff; font-weight: 600;">{{ emp.quantidade_pega }} unidade(s)</span></td>
+                            <td>
+                                <a href="{{ url_for('devolver_item', id=emp.id) }}" class="btn-action-success">Devolver</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #aaa; padding: 30px;">Você não possui nenhum equipamento em sua posse no momento.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </section>

@@ -24,6 +24,11 @@
             </div>
             <button type="submit" class="btn-login">Entrar</button>
         </form>
+
+        <div style="margin-top: 25px; text-align: center; font-size: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <a href="{{ url_for('recuperar_senha') }}" style="color: #dc3545; text-decoration: none; font-weight: 600;">Esqueceu o usuário ou a senha?</a>
+            <span style="color: #666;">Não tem um perfil? <a href="{{ url_for('cadastro_usuario') }}" style="color: #007bff; text-decoration: none; font-weight: 600;">Cadastre-se aqui</a></span>
+        </div>
     </div>
 </body>
 </html>

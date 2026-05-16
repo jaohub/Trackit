@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar Acesso - Trackit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Recuperar Acesso</h1>
+            <p>Insira seu CPF cadastrado para recuperar seu usuário e senha.</p>
+        </div>
+        <form action="/recuperar_senha" method="POST">
+            <div class="input-group">
+                <label>CPF Cadastrado</label>
+                <input type="text" name="cpf" placeholder="000.000.000-00" required>
+            </div>
+            <button type="submit" class="btn-login" style="background-color: #6c757d;">Buscar Credenciais</button>
+        </form>
+        <p style="margin-top: 20px; text-align: center; font-size: 14px;">
+            <a href="{{ url_for('login') }}" style="color: #007bff; text-decoration: none; font-weight: 600;">Voltar ao Login</a>
+        </p>
+    </div>
+</body>
+</html>

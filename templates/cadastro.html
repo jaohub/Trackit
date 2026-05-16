@@ -10,15 +10,15 @@
 <body class="cadastro-page">
     <div class="container">
         <nav class="sidebar-mock">
-            <a href="{{ url_for('index') }}" class="btn-back">← Voltar ao Painel</a>
+            <a href="{{ url_for('admin') }}" class="btn-back">← Voltar ao Painel Admin</a>
         </nav>
 
         <main class="content">
             <div class="form-card">
                 <h2>Novo Equipamento</h2>
-                <p>Preencha os dados para registrar o patrimônio no sistema.</p>
+                <p>Preencha os dados para registrar o lote de patrimônio no sistema.</p>
 
-                <form action="/adicionar" method="POST">
+                <form action="/admin/cadastro_equipamento" method="POST">
                     <div class="input-group">
                         <label>Nome do Equipamento</label>
                         <input type="text" name="nome" placeholder="Ex: Monitor AOC 180hz" required>
@@ -35,12 +35,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Status do Ativo</label>
-                        <select name="status">
-                            <option value="Ativo">Ativo / Operacional</option>
-                            <option value="Manutenção">Em Manutenção</option>
-                            <option value="Baixado">Baixado / Fora de Uso</option>
-                        </select>
+                        <label>Quantidade em Estoque</label>
+                        <input type="number" name="quantidade" value="1" min="1" placeholder="Ex: 5" required>
                     </div>
 
                     <button type="submit" class="btn-save">Confirmar Cadastro</button>
