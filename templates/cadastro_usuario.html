@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Usuário - Trackit</title>
+    <title>Criar Conta - Trackit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -13,28 +13,57 @@
             <h1>Criar Conta</h1>
             <p>Cadastre-se para gerenciar ferramentas</p>
         </div>
+        
         <form action="/cadastro_usuario" method="POST">
             <div class="input-group">
                 <label>Nome Completo</label>
                 <input type="text" name="nome" placeholder="Ex: João Mateus" required>
             </div>
+            
             <div class="input-group">
-                <label>Matrícula / ID</label>
-                <input type="text" name="matricula" placeholder="Sua matrícula" required>
+                <label>CPF</label>
+                <input type="text" id="cpfInput" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
             </div>
+            
             <div class="input-group">
                 <label>Nome de Usuário (Login)</label>
                 <input type="text" name="username" placeholder="ex: joao.mateus" required>
             </div>
+            
             <div class="input-group">
                 <label>Senha</label>
                 <input type="password" name="senha" placeholder="••••••••" required>
             </div>
+            
             <button type="submit" class="btn-login" style="background-color: #28a745;">Cadastrar</button>
         </form>
-        <p style="margin-top: 20px; font-size: 14px; color: #666;">
+        
+        <p style="margin-top: 20px; font-size: 14px; color: #666; text-align: center;">
             Já tem conta? <a href="{{ url_for('login') }}" style="color: #007bff; text-decoration: none; font-weight: 600;">Faça Login</a>
         </p>
     </div>
+
+    <script>
+        const cpfInput = document.getElementById('cpfInput');
+
+        cpfInput.addEventListener('input', (e) => {
+            // Remove tudo o que não for número
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Aplica a formatação por etapas conforme o tamanho digitado
+            if (value.length > 3) {
+                value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+            }
+            if (value.length > 6) {
+                value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+            }
+            if (value.length > 9) {
+                value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+            }
+            
+            // Atualiza o valor do campo na tela
+            e.target.value = value;
+        });
+    </script>
 </body>
 </html>
