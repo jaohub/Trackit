@@ -5,30 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Trackit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body.login-page {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f3f5;
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+        .login-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+            text-align: center;
+        }
+        .login-header p {
+            font-size: 15px;
+            color: #666;
+            margin: 0 0 32px 0;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .input-group input {
+            font-family: 'Inter', sans-serif;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #1e293b;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .input-group input:focus {
+            border-color: #2b7fff;
+            box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background-color: #2b7fff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            background-color: #1a66ff;
+        }
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+        .footer-links a {
+            color: #2b7fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-card">
         <div class="login-header">
-            <h1>Trackit</h1>
-            <p>Gestão de Ativos SENAI</p>
+            <h1>Login</h1>
+            <p>Gerencie as ferramentas do seu laboratório</p>
         </div>
+        
         <form action="/login" method="POST">
             <div class="input-group">
-                <label>Usuário</label>
-                <input type="text" name="usuario" placeholder="Seu usuário" required>
+                <label>CPF</label>
+                <input type="text" id="cpf_login" name="cpf" placeholder="000.000.000-00" required>
             </div>
+            
             <div class="input-group">
                 <label>Senha</label>
                 <input type="password" name="senha" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn-login">Entrar</button>
+            
+            <button type="submit" class="btn-login">Entrar no Sistema</button>
         </form>
-
-        <div style="margin-top: 25px; text-align: center; font-size: 14px; display: flex; flex-direction: column; gap: 10px;">
-            <a href="{{ url_for('recuperar_senha') }}" style="color: #dc3545; text-decoration: none; font-weight: 600;">Esqueceu o usuário ou a senha?</a>
-            <span style="color: #666;">Não tem um perfil? <a href="{{ url_for('cadastro_usuario') }}" style="color: #007bff; text-decoration: none; font-weight: 600;">Cadastre-se aqui</a></span>
+        
+        <div class="footer-links">
+            <a href="{{ url_for('recuperar_senha') }}">Esqueceu a senha?</a>
+            <a href="{{ url_for('cadastro_usuario') }}">Criar Conta</a>
         </div>
     </div>
+
+    <script>
+        const cpfLogin = document.getElementById('cpf_login');
+
+        cpfLogin.addEventListener('input', (e) => {
+            let value = e.target.value;
+            
+            // Permite digitar o usuário 'admin' sem aplicar a máscara de números
+            if (value.toLowerCase() === 'admin') {
+                return;
+            }
+            
+            value = value.replace(/\D/g, ''); // Remove letras
+            
+            if (value.length > 3) value = value.substring(0, 3) + '.' + value.substring(3);
+            if (value.length > 7) value = value.substring(0, 7) + '.' + value.substring(7);
+            if (value.length > 11) value = value.substring(0, 11) + '-' + value.substring(11, 13);
+            
+            e.target.value = value;
+        });
+    </script>
 </body>
 </html>

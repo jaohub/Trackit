@@ -3,46 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Ativo - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Cadastrar Equipamento - Trackit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body.login-page {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f3f5;
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+        .login-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+            text-align: center;
+        }
+        .login-header p {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 32px 0;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-group input, .input-group select {
+            font-family: 'Inter', sans-serif;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #1e293b;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: #2b7fff;
+            box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background-color: #2b7fff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            background-color: #1a66ff;
+        }
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-back:hover {
+            color: #111;
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body class="cadastro-page">
-    <div class="container">
-        <nav class="sidebar-mock">
-            <a href="{{ url_for('admin') }}" class="btn-back">← Voltar ao Painel Admin</a>
-        </nav>
-
-        <main class="content">
-            <div class="form-card">
-                <h2>Novo Equipamento</h2>
-                <p>Preencha os dados para registrar o lote de patrimônio no sistema.</p>
-
-                <form action="/admin/cadastro_equipamento" method="POST">
-                    <div class="input-group">
-                        <label>Nome do Equipamento</label>
-                        <input type="text" name="nome" placeholder="Ex: Monitor AOC 180hz" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Número de Patrimônio</label>
-                        <input type="text" name="patrimonio" placeholder="Ex: SENAI-12345" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Laboratório / Setor</label>
-                        <input type="text" name="laboratorio" placeholder="Ex: Laboratório de Informática 02" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Quantidade em Estoque</label>
-                        <input type="number" name="quantidade" value="1" min="1" placeholder="Ex: 5" required>
-                    </div>
-
-                    <button type="submit" class="btn-save">Confirmar Cadastro</button>
-                </form>
+<body class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Novo Equipamento</h1>
+            <p>Insira as informações para atualizar o estoque</p>
+        </div>
+        
+        <form action="/admin/cadastro_equipamento" method="POST">
+            <div class="input-group">
+                <label>Nome do Equipamento</label>
+                <input type="text" name="nome" placeholder="Ex: MONITOR AOC 24" oninput="this.value = this.value.toUpperCase()" required>
             </div>
-        </main>
+            
+            <div class="input-group">
+                <label>Código de Patrimônio</label>
+                <input type="text" name="patrimonio" placeholder="Ex: MON-1234" oninput="this.value = this.value.toUpperCase()" required>
+            </div>
+            
+            <div class="input-group">
+                <label>Laboratório / Origem</label>
+                <select name="laboratorio" required>
+                    <option value="" disabled selected>Selecione o laboratório...</option>
+                    <option value="1">Laboratório 1</option>
+                    <option value="2">Laboratório 2</option>
+                    <option value="3">Laboratório 3</option>
+                    <option value="4">Laboratório 4</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label>Quantidade em Estoque</label>
+                <input type="number" name="quantidade" value="1" min="1" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Cadastrar no Sistema</button>
+        </form>
+        
+        <a href="{{ url_for('admin') }}" class="btn-back">Voltar ao Painel Administrativo</a>
     </div>
 </body>
 </html>

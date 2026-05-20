@@ -5,7 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Conta - Trackit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body.login-page {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f3f5;
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+        }
+        .login-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 8px 0;
+            text-align: center;
+        }
+        .login-header p {
+            font-size: 15px;
+            color: #666;
+            margin: 0 0 32px 0;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .input-group input {
+            font-family: 'Inter', sans-serif;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #1e293b;
+            background-color: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .input-group input:focus {
+            border-color: #2b7fff;
+            box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background-color: #00b049;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            background-color: #00943d;
+        }
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer-links a {
+            color: #2b7fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-card">
@@ -22,12 +114,7 @@
             
             <div class="input-group">
                 <label>CPF</label>
-                <input type="text" id="cpfInput" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
-            </div>
-            
-            <div class="input-group">
-                <label>Nome de Usuário (Login)</label>
-                <input type="text" name="username" placeholder="ex: joao.mateus" required>
+                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
             </div>
             
             <div class="input-group">
@@ -35,33 +122,24 @@
                 <input type="password" name="senha" placeholder="••••••••" required>
             </div>
             
-            <button type="submit" class="btn-login" style="background-color: #28a745;">Cadastrar</button>
+            <button type="submit" class="btn-login">Cadastrar</button>
         </form>
         
-        <p style="margin-top: 20px; font-size: 14px; color: #666; text-align: center;">
-            Já tem conta? <a href="{{ url_for('login') }}" style="color: #007bff; text-decoration: none; font-weight: 600;">Faça Login</a>
-        </p>
+        <div class="footer-links">
+            Já tem conta? <a href="{{ url_for('login') }}">Faça Login</a>
+        </div>
     </div>
 
     <script>
-        const cpfInput = document.getElementById('cpfInput');
+        const cpfInput = document.getElementById('cpf');
 
         cpfInput.addEventListener('input', (e) => {
-            // Remove tudo o que não for número
-            let value = e.target.value.replace(/\D/g, '');
+            let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não for número
             
-            // Aplica a formatação por etapas conforme o tamanho digitado
-            if (value.length > 3) {
-                value = value.replace(/^(\d{3})(\d)/, '$1.$2');
-            }
-            if (value.length > 6) {
-                value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-            }
-            if (value.length > 9) {
-                value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
-            }
+            if (value.length > 3) value = value.substring(0, 3) + '.' + value.substring(3);
+            if (value.length > 7) value = value.substring(0, 7) + '.' + value.substring(7);
+            if (value.length > 11) value = value.substring(0, 11) + '-' + value.substring(11, 13);
             
-            // Atualiza o valor do campo na tela
             e.target.value = value;
         });
     </script>
