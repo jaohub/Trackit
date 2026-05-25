@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Garantindo o reset visual idêntico ao tema principal do Trackit */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fa;
@@ -36,6 +34,10 @@
             color: #666;
             font-size: 15px;
         }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
         .btn-primary {
             background-color: #2b7fff;
             color: white;
@@ -44,10 +46,23 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 14px;
+            border: none;
+            cursor: pointer;
             transition: background 0.2s;
         }
         .btn-primary:hover {
             background-color: #1a66ff;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
         }
         .btn-danger {
             background-color: #dc3545;
@@ -59,7 +74,36 @@
             font-size: 14px;
         }
         
-        /* Grid de Cards Superiores */
+        /* Filtro Dinâmico */
+        .filter-section {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f3f5;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .filter-section label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .filter-select {
+            padding: 10px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            min-width: 280px;
+            cursor: pointer;
+        }
+
+        /* Grid de Cards */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -79,7 +123,6 @@
             color: #8c98a5;
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         .card-metric .metric-number {
             margin: 12px 0 0 0;
@@ -87,14 +130,11 @@
             font-weight: 700;
             color: #1e293b;
         }
-        .card-available h3 { color: #28a745; }
-        .card-available .metric-number { color: #28a745; }
-        .card-in-use h3 { color: #2b7fff; }
-        .card-in-use .metric-number { color: #2b7fff; }
-        .card-users h3 { color: #6f42c1; }
-        .card-users .metric-number { color: #6f42c1; }
+        .card-available h3, .card-available .metric-number { color: #28a745; }
+        .card-in-use h3, .card-in-use .metric-number { color: #2b7fff; }
+        .card-users h3, .card-users .metric-number { color: #6f42c1; }
 
-        /* Seções de Tabelas no Padrão do Projeto */
+        /* Tabelas */
         .table-section {
             background: white;
             padding: 30px;
@@ -109,13 +149,9 @@
             font-weight: 600;
             color: #1e293b;
         }
-        .table-wrapper {
-            overflow-x: auto;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
         }
         th {
             color: #8c98a5;
@@ -124,76 +160,94 @@
             padding: 16px 20px;
             border-bottom: 2px solid #f1f3f5;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-align: left;
         }
         td {
             padding: 18px 20px;
             border-bottom: 1px solid #f1f3f5;
             font-size: 14px;
             color: #4a5568;
-            vertical-align: middle;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        td strong {
-            color: #1e293b;
-            font-weight: 600;
-        }
-
-        /* Elementos e Badges de Status Estilizados */
-        .status-badge-free {
-            background-color: #e8f5e9;
-            color: #28a745;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-block;
-        }
-        .status-badge-empty {
-            background-color: #fce8e6;
-            color: #dc3545;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-block;
-        }
-        .username-tag {
-            background: #eef2f7;
-            color: #475569;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 13px;
         }
         
-        /* Botões de Ação na Tabela */
-        .btn-action-delete {
-            background-color: #dc3545;
-            color: white;
-            padding: 6px 14px;
+        /* Sistema Ocultar/Visualizar Senha */
+        .password-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .password-hidden {
+            letter-spacing: 3px;
+            font-weight: bold;
+            color: #94a3b8;
+        }
+        .btn-view-password {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+        }
+        .btn-view-password:hover {
+            background: #e2e8f0;
+        }
+
+        .admin-badge {
+            background-color: #ffe4e6;
+            color: #e11d48;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 6px;
+        }
+
+        /* Listas Retráteis */
+        .collapsible-container { margin-top: 4px; }
+        .collapsible-trigger {
+            background: #eef2f7;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            padding: 5px 12px;
             border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.2s;
-            display: inline-block;
-        }
-        .btn-action-delete:hover {
-            background-color: #bd2130;
-        }
-        .btn-inline-return {
-            color: #dc3545;
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 5px;
+            cursor: pointer;
             font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-inline-return:hover {
-            text-decoration: underline;
+        .collapsible-trigger .arrow-icon {
+            transition: transform 0.2s ease;
         }
+        .collapsible-trigger.active .arrow-icon { transform: rotate(180deg); }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+        }
+        .collapsible-content.show { max-height: 300px; overflow-y: auto; margin-top: 8px; }
+
+        /* Estilos do Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; display: none;
+        }
+        .modal-card {
+            background: white; padding: 30px; border-radius: 16px;
+            width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .modal-card h3 { margin-top: 0; font-size: 18px; color: #1e293b; }
+        .modal-select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 1px solid #cbd5e1; margin: 15px 0; font-family: sans-serif;
+        }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
     </style>
 </head>
 <body>
@@ -201,27 +255,40 @@
         
         <header class="admin-header">
             <div class="header-title">
-                <h1>Painel Administrativo ⚙️</h1>
-                <p>Gestão Geral de Usuários e Equipamentos SENAI</p>
+                <h1>Painel Administrativo</h1>
+                <p>Gestão Geral de Usuários e Equipamentos</p>
             </div>
             <div class="header-actions">
-                <a href="{{ url_for('cadastro_equipamento') }}" class="btn-primary">+ Cadastrar Equipamento</a>
+                {% if is_super_admin %}
+                    <button class="btn-secondary" onclick="abrirModal()">Adicionar Admin</button>
+                {% endif %}
+                <a href="{{ url_for('cadastro_equipamento') }}" class="btn-primary">Cadastrar Equipamentos</a>
                 <a href="{{ url_for('logout') }}" class="btn-danger">Sair</a>
             </div>
         </header>
 
+        <section class="filter-section">
+            <label for="equipamentoFilter">Visualizar métricas de:</label>
+            <select id="equipamentoFilter" class="filter-select">
+                <option value="todos">Todos os Equipamentos</option>
+                {% for ativo in ativos %}
+                    <option value="{{ ativo.id }}">{{ ativo.nome }} - [Lab {{ ativo.laboratorio }}]</option>
+                {% endfor %}
+            </select>
+        </section>
+
         <section class="metrics-grid">
             <div class="card-metric">
-                <h3>Total de Equipamentos</h3>
-                <p class="metric-number">{{ total_ativos }}</p>
+                <h3>Total do Equipamento</h3>
+                <p class="metric-number" id="metricTotal">{{ total_ativos }}</p>
             </div>
             <div class="card-metric card-available">
                 <h3>Disponíveis</h3>
-                <p class="metric-number">{{ total_disponiveis }}</p>
+                <p class="metric-number" id="metricDisponiveis">{{ total_disponiveis }}</p>
             </div>
             <div class="card-metric card-in-use">
                 <h3>Em Uso</h3>
-                <p class="metric-number">{{ total_em_uso }}</p>
+                <p class="metric-number" id="metricEmUso">{{ total_em_uso }}</p>
             </div>
             <div class="card-metric card-users">
                 <h3>Usuários Ativos</h3>
@@ -231,95 +298,184 @@
 
         <section class="table-section">
             <h2>Equipamentos Registrados</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Equipamento</th>
-                            <th>Patrimônio</th>
-                            <th>Laboratório</th>
-                            <th>Status</th>
-                            <th>Estoque Total</th>
-                            <th>Quem Pegou</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ativo in ativos %}
-                        <tr>
-                            <td><strong>{{ ativo.nome }}</strong></td>
-                            <td>{{ ativo.patrimonio }}</td>
-                            <td>{{ ativo.laboratorio }}</td>
-                            <td>
-                                {% if ativo.qtd_disponivel > 0 %}
-                                    <span class="status-badge-free">{{ ativo.qtd_disponivel }} de {{ ativo.quantidade }} unidades livres</span>
-                                {% else %}
-                                    <span class="status-badge-empty">Esgotado</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ ativo.quantidade }} un</td>
-                            <td>
-                                {% if ativo.emprestimos %}
-                                    <ul style="margin: 0; padding-left: 15px; font-size: 13px; color: #4a5568; line-height: 1.6;">
-                                    {% for emp in ativo.emprestimos %}
-                                        <li>{{ emp.usuario.nome }} ({{ emp.quantidade_pega }} un)</li>
-                                    {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span style="color: #a0aec0;">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('deletar_ativo', id=ativo.id) }}" class="btn-action-delete">Remover</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Patrimônio</th>
+                        <th>Laboratório</th>
+                        <th>Status</th>
+                        <th>Estoque Total</th>
+                        <th>Quem Pegou</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ativo in ativos %}
+                    <tr>
+                        <td><strong>{{ ativo.nome }}</strong></td>
+                        <td>{{ ativo.patrimonio }}</td>
+                        <td>Laboratório {{ ativo.laboratorio }}</td>
+                        <td>
+                            {% if ativo.qtd_disponivel > 0 %}
+                                <span class="status-badge-free" style="background-color: #e8f5e9; color: #28a745; padding: 6px 12px; border-radius: 20px;">{{ ativo.qtd_disponivel }} livres</span>
+                            {% else %}
+                                <span class="status-badge-empty" style="background-color: #fce8e6; color: #dc3545; padding: 6px 12px; border-radius: 20px;">Esgotado</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ ativo.quantidade }} un</td>
+                        <td>
+                            {% if ativo.emprestimos %}
+                                <div class="collapsible-container">
+                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)">
+                                        Ver Alunos ({{ ativo.emprestimos|length }}) <span class="arrow-icon">▼</span>
+                                    </div>
+                                    <div class="collapsible-content">
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
+                                        {% for emp in ativo.emprestimos %}
+                                            <li>{{ emp.usuario.nome }} <strong>({{ emp.quantidade_pega }} un)</strong></li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span style="color: #a0aec0;">-</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{{ url_for('deletar_ativo', id=ativo.id) }}" style="color: #dc3545; font-weight:600; text-decoration:none;">Remover</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
 
         <section class="table-section">
             <h2>Usuários Registrados</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome Completo</th>
-                            <th>CPF</th>
-                            <th>Username</th>
-                            <th>Itens em Posse</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in usuarios %}
-                        <tr>
-                            <td><strong>{{ user.nome }}</strong></td>
-                            <td>{{ user.cpf }}</td>
-                            <td><span class="username-tag">@{{ user.username }}</span></td>
-                            <td>
-                                {% if user.emprestimos %}
-                                    {% for emp in user.emprestimos %}
-                                        <div style="font-size: 13px; margin-bottom: 6px; color: #4a5568;">
-                                            • {{ emp.ativo.nome }} ({{ emp.quantidade_pega }} un)
-                                            <a href="{{ url_for('devolver_item', id=emp.id) }}" class="btn-inline-return">[Devolver]</a>
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <span style="color: #28a745; font-weight: 500; font-size: 13px;">Nenhuma posse</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('deletar_usuario', id=user.id) }}" class="btn-action-delete">Remover Usuário</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome Completo</th>
+                        <th>CPF</th>
+                        <th>Username Interno</th>
+                        <th>Senha Cadastrada</th>
+                        <th>Itens em Posse</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in usuarios %}
+                    <tr>
+                        <td>
+                            <strong>{{ user.nome }}</strong>
+                            {% if user.is_admin %}
+                                <span class="admin-badge">Admin</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.cpf }}</td>
+                        <td><span style="background: #eef2f7; padding: 4px 8px; border-radius:6px; font-family: monospace;">@{{ user.username }}</span></td>
+                        <td>
+                            <div class="password-container">
+                                <span id="pwd-{{ user.id }}" class="password-hidden">••••••</span>
+                                <button class="btn-view-password" onclick="solicitarRevelarSenha('{{ user.id }}')">Revelar</button>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.emprestimos %}
+                                <div class="collapsible-container">
+                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)">
+                                        Ver Itens ({{ user.emprestimos|length }}) <span class="arrow-icon">▼</span>
+                                    </div>
+                                    <div class="collapsible-content">
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
+                                        {% for emp in user.emprestimos %}
+                                            <li>{{ emp.ativo.nome }} [Lab {{ emp.ativo.laboratorio }}] <strong>({{ emp.quantidade_pega }} un)</strong></li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span style="color: #28a745; font-weight: 500;">Nenhuma posse</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{{ url_for('deletar_usuario', id=user.id) }}" style="color: #dc3545; font-weight:600; text-decoration:none;">Remover Usuário</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
-        
     </div>
+
+    <div id="adminModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Adicionar Admin</h3>
+            <p style="font-size: 13px; color: #666; margin: 0;">Selecione um usuário cadastrado no sistema para validá-lo com acesso ao painel administrativo:</p>
+            <form action="{{ url_for('promover_admin') }}" method="POST">
+                <select name="usuario_id" class="modal-select" required>
+                    <option value="" disabled selected>Escolha o usuário...</option>
+                    {% for user in usuarios_comuns %}
+                        <option value="{{ user.id }}">{{ user.nome }} (CPF: {{ user.cpf }})</option>
+                    {% endfor %}
+                </select>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Validar como Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Solicitação Segura para Revelar Senha
+        function solicitarRevelarSenha(usuarioId) {
+            const senhaAdmin = prompt("Segurança Trackit: Digite sua senha pessoal de administrador para visualizar:");
+            
+            if (senhaAdmin === null || senhaAdmin.trim() === "") return;
+
+            fetch('/api/verificar_senha_admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ senha_admin: senhaAdmin, usuario_id: usuarioId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    const campoSenha = document.getElementById(`pwd-${usuarioId}`);
+                    campoSenha.textContent = data.senha_revelada;
+                    campoSenha.classList.remove('password-hidden');
+                    campoSenha.style.fontFamily = 'monospace';
+                } else {
+                    alert(data.mensagem);
+                }
+            })
+            .catch(error => console.error('Erro na validação:', error));
+        }
+
+        // 2. Filtro de Métricas
+        const filterSelect = document.getElementById('equipamentoFilter');
+        if (filterSelect) {
+            filterSelect.addEventListener('change', (e) => {
+                fetch(`/api/metricas_equipamento?id=${e.target.value}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('metricTotal').textContent = data.total;
+                        document.getElementById('metricDisponiveis').textContent = data.disponiveis;
+                        document.getElementById('metricEmUso').textContent = data.em_uso;
+                    });
+            });
+        }
+
+        // 3. Dropdowns Retráteis
+        function toggleDropdown(el) {
+            el.classList.toggle('active');
+            const content = el.nextElementSibling;
+            if (content) {
+                content.classList.toggle('show');
+            }
+        }
+
+        // 4. Controle do Modal de Promoção
+        function abrirModal() { document.getElementById('adminModal').style.style.display = 'flex'; }
+        function fecharModal() { document.getElementById('adminModal').style.style.display = 'none'; }
+    </script>
 </body>
 </html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Trackit - Painel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              
+              {% if category == 'sucesso' %}
+                <div class="flash-message {{ category }}" style="padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 600; text-align: center; background-color: #d4edda; color: #155724;">
+                    {{ message }}
+                </div>
+              {% else %}
+                <div class="flash-message {{ category }}" style="padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 600; text-align: center; background-color: #f8d7da; color: #721c24;">
+                    {{ message }}
+                </div>
+              {% endif %}
+
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <header class="header-actions">
+            <div>
+                <h1>Olá, {{ user_nome }}! 👋</h1>
+                <p>Consulte o estoque e retire os equipamentos necessários</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                {% if mostrar_botao_admin %}
+                <a href="{{ url_for('admin') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: flex; align-items: center;">
+                    Painel Administrativo
+                </a>
+                {% endif %}
+                
+                <a href="{{ url_for('logout') }}" class="btn-new" style="background-color: #dc3545;">Sair</a>
+            </div>
+        </header>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            <h2 style="font-size: 18px; color: #333; margin: 0;">Equipamentos nos Laboratórios</h2>
+            
+            <input type="text" id="inputBusca" onkeyup="filtrarEquipamentos()" placeholder="🔍 Buscar por nome do equipamento..." style="padding: 10px 15px; width: 300px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Inter', sans-serif; font-size: 14px; outline: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        </div>
+
+        <section class="table-card" style="margin-bottom: 40px;">
+            <table id="tabelaAtivos">
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Patrimônio</th>
+                        <th>Laboratório</th>
+                        <th>Estoque Disponível</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ativo in ativos %}
+                    <tr>
+                        <td class="nome-ativo"><strong>{{ ativo.nome }}</strong></td>
+                        <td>{{ ativo.patrimonio }}</td>
+                        <td>Laboratório {{ ativo.laboratorio }}</td>
+                        <td>
+                            <span class="status-pill {% if ativo.qtd_disponivel > 0 %}status-disponivel{% else %}status-uso{% endif %}">
+                                {{ ativo.qtd_disponivel }} de {{ ativo.quantidade }} livres
+                            </span>
+                        </td>
+                        <td>
+                            {% if ativo.qtd_disponivel > 0 %}
+                            <form action="{{ url_for('retirar', id=ativo.id) }}" method="POST" style="display: flex; gap: 5px; align-items: center;">
+                                <input type="number" name="qtd_a_pegar" class="input-qtd" value="1" min="1" max="{{ ativo.qtd_disponivel }}" data-max="{{ ativo.qtd_disponivel }}" style="width: 55px; padding: 5px; border-radius: 6px; border: 1px solid #ccc; text-align: center; font-family: 'Inter', sans-serif; transition: all 0.2s;" required>
+                                <button type="submit" class="btn-action btn-retirar">Pegar</button>
+                            </form>
+                            {% else %}
+                                <span style="color: #dc3545; font-size: 13px; font-weight: 600;">Esgotado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #333;">Itens em sua Posse (Pendentes)</h2>
+        <section class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipamento</th>
+                        <th>Laboratório de Origem</th>
+                        <th>Quantidade Retirada</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if meus_emprestimos %}
+                        {% for emp in meus_emprestimos %}
+                        <tr>
+                            <td><strong>{{ emp.ativo.nome }}</strong></td>
+                            <td>Laboratório {{ emp.ativo.laboratorio }}</td>
+                            <td><span style="color: #007bff; font-weight: 600;">{{ emp.quantidade_pega }} unidade(s)</span></td>
+                            <td>
+                                <a href="{{ url_for('devolver_item', id=emp.id) }}" class="btn-action-success">Devolver</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #aaa; padding: 30px;">Você não possui nenhum equipamento em sua posse.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        function filtrarEquipamentos() {
+            let input = document.getElementById('inputBusca').value.toLowerCase();
+            let tabela = document.getElementById('tabelaAtivos');
+            let linhas = tabela.getElementsByTagName('tr');
+
+            for (let i = 1; i < linhas.length; i++) {
+                let colunaNome = linhas[i].getElementsByClassName('nome-ativo')[0];
+                if (colunaNome) {
+                    let textoNome = colunaNome.textContent || colunaNome.innerText;
+                    if (textoNome.toLowerCase().indexOf(input) > -1) {
+                        linhas[i].style.display = "";
+                    } else {
+                        linhas[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        document.querySelectorAll('.input-qtd').forEach(input => {
+            input.addEventListener('input', function() {
+                let maximoPermitido = parseInt(this.getAttribute('data-max'));
+                let valorDigitado = parseInt(this.value);
+                let botaosubmit = this.closest('form').querySelector('.btn-retirar');
+
+                if (valorDigitado > maximoPermitido || valorDigitado < 1 || isNaN(valorDigitado)) {
+                    this.style.borderColor = '#dc3545';
+                    this.style.backgroundColor = '#f8d7da';
+                    this.style.color = '#721c24';
+                    if (botaosubmit) {
+                        botaosubmit.disabled = true;
+                        botaosubmit.style.opacity = '0.4';
+                        botaosubmit.style.cursor = 'not-allowed';
+                    }
+                } else {
+                    this.style.borderColor = '#ccc';
+                    this.style.backgroundColor = '#fff';
+                    this.style.color = '#333';
+                    if (botaosubmit) {
+                        botaosubmit.disabled = false;
+                        botaosubmit.style.opacity = '1';
+                        botaosubmit.style.cursor = 'pointer';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
