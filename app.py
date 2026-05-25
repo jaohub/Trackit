@@ -1,144 +1,78 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
-import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'chave_secreta_para_sessoes_do_trackit'
+app.secret_key = "trackit_secret_key_senai"
 
-# Configuracao do Banco de Dados SQLite
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
+# Configuração do Banco de Dados
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trackit.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 # ==========================================
-#                  MODELOS
+# MODELOS DO BANCO DE DADOS
 # ==========================================
-
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     cpf = db.Column(db.String(14), unique=True, nullable=False)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    senha = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)  # Armazena o Nome para compatibilidade com o Admin
+    senha = db.Column(db.String(255), nullable=False) # Aumentado para suportar o hash criptografado
     is_admin = db.Column(db.Boolean, default=False)
-    emprestimos = db.relationship('Emprestimo', backref='aluno', lazy=True)
+    emprestimos = db.relationship('Emprestimo', backref='usuario', lazy=True)
 
 class Ativo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     patrimonio = db.Column(db.String(50), unique=True, nullable=False)
-    laboratorio = db.Column(db.String(50), nullable=False)
-    quantidade = db.Column(db.Integer, default=1)        
-    qtd_disponivel = db.Column(db.Integer, default=1)    
-    emprestimos = db.relationship('Emprestimo', backref='ativo_rel', lazy=True)
+    laboratorio = db.Column(db.Integer, nullable=False)
+    quantidade = db.Column(db.Integer, nullable=False)       
+    qtd_disponivel = db.Column(db.Integer, nullable=False)   
+    emprestimos = db.relationship('Emprestimo', backref='ativo', lazy=True)
 
 class Emprestimo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     ativo_id = db.Column(db.Integer, db.ForeignKey('ativo.id'), nullable=False)
     quantidade_pega = db.Column(db.Integer, nullable=False)
-    
-    usuario = db.relationship('Usuario')
-    ativo = db.relationship('Ativo')
-
-# Criar tabelas e aplicar auto-correcao de Schema
-with app.app_context():
-    try:
-        db.create_all()
-        Usuario.query.filter_by(username='admin').first()
-    except Exception:
-        db.drop_all()
-        db.create_all()
-        
-    if not Usuario.query.filter_by(username='admin').first():
-        admin_padrao = Usuario(
-            nome="Administrador Trackit",
-            cpf="000.000.000-00",
-            username="admin",
-            senha="admin123",
-            is_admin=True
-        )
-        db.session.add(admin_padrao)
-        db.session.commit()
+    # MELHORIA 1: Colunas para Auditoria e Histórico Permanente
+    status = db.Column(db.String(20), default='Ativo') # 'Ativo' ou 'Devolvido'
+    data_retirada = db.Column(db.DateTime, default=datetime.now)
+    data_devolucao = db.Column(db.DateTime, nullable=True)
 
 # ==========================================
-#          ROTAS DE AUTENTICACAO
+# ROTAS DE REDIRECIONAMENTO E SESSÃO
 # ==========================================
-
-@app.route('/cadastro_usuario', methods=['GET', 'POST'])
-def cadastro_usuario():
-    if request.method == 'POST':
-        nome_completo = request.form.get('nome').strip()
-        cpf_enviado = request.form.get('cpf').strip()
-        senha_enviada = request.form.get('senha')
-        
-        # Como o login agora é por CPF, geramos um username interno padrão baseado no CPF 
-        # apenas para não quebrar a estrutura existente do banco de dados.
-        username_interno = cpf_enviado.replace('.', '').replace('-', '')
-        
-        novo_user = Usuario(
-            nome=nome_completo,
-            cpf=cpf_enviado,
-            username=username_interno,
-            senha=senha_enviada,
-            is_admin=False
-        )
-        try:
-            db.session.add(novo_user)
-            db.session.commit()
-            return redirect(url_for('login'))
-        except Exception:
-            db.session.rollback()
-            return "Erro: Este CPF já está cadastrado no sistema."
-            
-    return render_template('cadastro_usuario.html')
+@app.route('/')
+def index():
+    # MODIFICADO: Remove qualquer sessão aberta para garantir que caia sempre no Login ao digitar a URL pura
+    session.clear() 
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        cpf_enviado = request.form.get('cpf').strip()
-        senha_enviada = request.form.get('senha')
+        login_input = request.form.get('cpf')
+        senha = request.form.get('senha')
         
-        # Se for o admin padrão tentando entrar
-        if cpf_enviado == 'admin':
-            user = Usuario.query.filter_by(username='admin', senha=senha_enviada).first()
-        else:
-            # Busca o usuário comum diretamente pelo CPF cadastrado
-            user = Usuario.query.filter_by(cpf=cpf_enviado, senha=senha_enviada).first()
+        # 1. VALIDAÇÃO MASTER (SUPER ADMIN FIXO)
+        if login_input == 'admin' and senha == 'admin123':
+            session['username'] = 'admin'
+            return redirect(url_for('pegar_itens'))
             
-        if user:
-            session['user_id'] = user.id
-            session['user_nome'] = user.nome
-            session['is_admin'] = user.is_admin
+        # 2. VALIDAÇÃO POR CPF OU NOME COM CRIPTOGRAFIA (MELHORIA 3)
+        user = Usuario.query.filter((Usuario.cpf == login_input) | (Usuario.nome == login_input)).first()
+        if user and check_password_hash(user.senha, senha):
+            session['username'] = user.username
+            return redirect(url_for('pegar_itens'))
             
-            if user.is_admin:
-                return redirect(url_for('admin'))
-            return redirect(url_for('index'))
-        else:
-            return "CPF ou senha incorretos."
+        flash('Credenciais incorretas. Verifique seu CPF/Nome e senha.', 'erro')
+        return render_template('login.html')
             
+    session.pop('_flashes', None)
     return render_template('login.html')
-
-@app.route('/recuperar_senha', methods=['GET', 'POST'])
-def recuperar_senha():
-    if request.method == 'POST':
-        cpf = request.form.get('cpf')
-        user = Usuario.query.filter_by(cpf=cpf).first()
-        if user:
-            return f"""
-            <div style="font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; text-align: center;">
-                <h3>Credenciais Encontradas!</h3>
-                <p>Seu Usuario: <strong>{user.username}</strong></p>
-                <p>Sua Senha: <strong>{user.senha}</strong></p>
-                <br>
-                <a href='/login' style="color: #007bff; text-decoration: none; font-weight: bold;">Voltar para o Login</a>
-            </div>
-            """
-        else:
-            return "CPF nao encontrado. <br><br><a href='/recuperar_senha'>Tentar novamente</a>"
-    return render_template('recuperar_senha.html')
 
 @app.route('/logout')
 def logout():
@@ -146,128 +80,245 @@ def logout():
     return redirect(url_for('login'))
 
 # ==========================================
-#          VISAO DO USUARIO COMUM
+# CADASTRO DE USUÁRIO (CRIPTOGRAFANDO A SENHA)
 # ==========================================
+@app.route('/cadastro_usuario', methods=['GET', 'POST'])
+def cadastro_usuario():
+    if request.method == 'POST':
+        nome = request.form.get('nome')
+        cpf = request.form.get('cpf')
+        senha = request.form.get('senha')
+        
+        if not nome or not cpf or not senha:
+            flash('Por favor, preencha todos os campos obrigatórios!', 'erro')
+            return render_template('cadastro_usuario.html')
 
-@app.route('/')
-def index():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
-    ativos = Ativo.query.all()
-    meus_emprestimos = Emprestimo.query.filter_by(usuario_id=session['user_id']).all()
-    return render_template('index.html', ativos=ativos, meus_emprestimos=meus_emprestimos)
+        cpf_existente = Usuario.query.filter_by(cpf=cpf).first()
+        if cpf_existente:
+            flash('Este CPF já está cadastrado no sistema!', 'erro')
+            return render_template('cadastro_usuario.html')
 
-@app.route('/retirar/<int:id>', methods=['POST'])
-def retirar(id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
-    ativo = Ativo.query.get_or_404(id)
-    qtd_a_pegar = int(request.form.get('qtd_a_pegar', 1))
-    
-    if 0 < qtd_a_pegar <= ativo.qtd_disponivel:
-        ativo.qtd_disponivel -= qtd_a_pegar
-        
-        novo_emprestimo = Emprestimo(
-            usuario_id=session['user_id'],
-            ativo_id=ativo.id,
-            quantidade_pega=qtd_a_pegar
-        )
-        db.session.add(novo_emprestimo)
-        db.session.commit()
-    return redirect(url_for('index'))
+        if nome.lower().strip() == 'admin':
+            flash('Nome de usuário reservado pelo sistema!', 'erro')
+            return render_template('cadastro_usuario.html')
 
-@app.route('/devolver_item/<int:id>')
-def devolver_item(id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-        
-    emprestimo = Emprestimo.query.get_or_404(id)
-    
-    if emprestimo.usuario_id == session['user_id'] or session.get('is_admin'):
-        ativo = Ativo.query.get(emprestimo.ativo_id)
-        ativo.qtd_disponivel += emprestimo.quantidade_pega
-        
-        db.session.delete(emprestimo)
-        db.session.commit()
-        
-    if session.get('is_admin'):
-        return redirect(url_for('admin'))
-    return redirect(url_for('index'))
+        try:
+            # MELHORIA 3: Senha salva utilizando hash criptográfico seguro
+            senha_criptografada = generate_password_hash(senha)
+            novo_usuario = Usuario(nome=nome, cpf=cpf, username=nome, senha=senha_criptografada, is_admin=False)
+            db.session.add(novo_usuario)
+            db.session.commit()
+            
+            flash('Cadastro realizado com sucesso! Faça seu login informando o CPF.', 'sucesso')
+            return redirect(url_for('login'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Erro ao salvar no banco de dados. Tente novamente.', 'erro')
+            return render_template('cadastro_usuario.html')
+
+    session.pop('_flashes', None)
+    return render_template('cadastro_usuario.html')
 
 # ==========================================
-#          PAINEL ADMINISTRATIVO
+# OUTRAS ROTAS DO SISTEMA
 # ==========================================
-
 @app.route('/admin')
 def admin():
-    if 'user_id' not in session or not session.get('is_admin'):
-        return "Acesso negado.", 403
-        
+    username_logado = session.get('username')
+    if not username_logado:
+        return redirect(url_for('login'))
+    
+    if username_logado != 'admin':
+        usuario_atual = Usuario.query.filter_by(username=username_logado).first()
+        if not usuario_atual or not usuario_atual.is_admin:
+            return "Acesso Negado!", 403
+
     ativos = Ativo.query.all()
-    usuarios = Usuario.query.filter_by(is_admin=False).all()
-    todos_emprestimos = Emprestimo.query.all()
+    usuarios = Usuario.query.all()
+    usuarios_comuns = Usuario.query.filter_by(is_admin=False).all()
     
-    total_equipamentos = sum(item.quantidade for item in ativos)
-    total_disponiveis = sum(item.qtd_disponivel for item in ativos)
-    total_em_uso = sum(emp.quantidade_pega for emp in todos_emprestimos)
-    total_usuarios_ativos = len(usuarios)
+    # MELHORIA 1: Enviando o histórico permanente de movimentações para o admin
+    historico_movimentacoes = Emprestimo.query.order_by(Emprestimo.id.desc()).all()
     
-    return render_template('admin.html', 
-                           ativos=ativos, 
-                           usuarios=usuarios, 
-                           todos_emprestimos=todos_emprestimos,
-                           total_ativos=total_equipamentos,
-                           total_disponiveis=total_disponiveis,
-                           total_em_uso=total_em_uso,
-                           total_users=total_usuarios_ativos)
+    total_ativos = db.session.query(db.func.sum(Ativo.quantidade)).scalar() or 0
+    total_disponiveis = db.session.query(db.func.sum(Ativo.qtd_disponivel)).scalar() or 0
+    total_em_uso = total_ativos - total_disponiveis
+    total_users = Usuario.query.count()
+    
+    is_super_admin = (username_logado == 'admin')
+    
+    return render_template(
+        'admin.html', 
+        ativos=ativos, 
+        usuarios=usuarios, 
+        usuarios_comuns=usuarios_comuns,
+        historico_movimentacoes=historico_movimentacoes,
+        total_ativos=total_ativos, 
+        total_disponiveis=total_disponiveis, 
+        total_em_uso=total_em_uso, 
+        total_users=total_users,
+        is_super_admin=is_super_admin
+    )
 
-@app.route('/admin/cadastro_equipamento', methods=['GET', 'POST'])
+@app.route('/cadastro_equipamento', methods=['GET', 'POST'])
 def cadastro_equipamento():
-    if 'user_id' not in session or not session.get('is_admin'):
-        return "Acesso negado.", 403
-        
-    if request.method == 'POST':
-        qtd = int(request.form.get('quantidade', 1))
-        novo = Ativo(
-            nome=request.form.get('nome'),
-            patrimonio=request.form.get('patrimonio'),
-            laboratorio=request.form.get('laboratorio'),
-            quantidade=qtd,
-            qtd_disponivel=qtd
-        )
-        db.session.add(novo)
-        db.session.commit()
-        return redirect(url_for('admin'))
-    return render_template('cadastro.html')
+    if session.get('username') is None:
+        return redirect(url_for('login'))
+    return render_template('cadastro_equipamento.html')
 
-@app.route('/admin/deletar_ativo/<int:id>')
-def deletar_ativo(id):
-    if 'user_id' not in session or not session.get('is_admin'):
-        return "Acesso negado.", 403
+# MELHORIA 3: Como as senhas usam hash, o Admin agora dá Reset na senha por segurança
+@app.route('/api/resetar_senha_usuario', methods=['POST'])
+def resetar_senha_usuario():
+    data = request.json
+    senha_admin = data.get('senha_admin')
+    usuario_alvo_id = data.get('usuario_id')
+    username_logado = session.get('username')
+    
+    if not username_logado:
+        return jsonify({'sucesso': False, 'mensagem': 'Sessão expirada.'}), 401
         
+    autenticado = False
+    if username_logado == 'admin' and senha_admin == 'admin123':
+        autenticado = True
+    else:
+        admin_logado = Usuario.query.filter_by(username=username_logado, is_admin=True).first()
+        if admin_logado and check_password_hash(admin_logado.senha, senha_admin):
+            autenticado = True
+            
+    if autenticado:
+        user_alvo = Usuario.query.get(usuario_alvo_id)
+        if user_alvo:
+            user_alvo.senha = generate_password_hash("senai123") # Nova senha padrão resetada
+            db.session.commit()
+            return jsonify({'sucesso': True, 'mensagem': 'Senha resetada com sucesso para: senai123'})
+            
+    return jsonify({'sucesso': False, 'mensagem': 'Senha do administrador inválida.'}), 403
+
+@app.route('/promover_admin', methods=['POST'])
+def promover_admin():
+    if session.get('username') != 'admin':
+        return "Acesso negado!", 403
+    usuario_id = request.form.get('usuario_id')
+    user = Usuario.query.get(usuario_id)
+    if user:
+        user.is_admin = True
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/api/metricas_equipamento')
+def metricas_equipamento():
+    ativo_id = request.args.get('id')
+    if not ativo_id or ativo_id == 'todos':
+        total_ativos = db.session.query(db.func.sum(Ativo.quantidade)).scalar() or 0
+        total_disponiveis = db.session.query(db.func.sum(Ativo.qtd_disponivel)).scalar() or 0
+        total_em_uso = total_ativos - total_disponiveis
+        return jsonify({'total': total_ativos, 'disponiveis': total_disponiveis, 'em_uso': total_em_uso})
+    
+    ativo = Ativo.query.get(ativo_id)
+    if ativo:
+        total_ativos = ativo.quantidade
+        total_disponiveis = ativo.qtd_disponivel
+        total_em_uso = total_ativos - total_disponiveis
+    else:
+        total_ativos, total_disponiveis, total_em_uso = 0, 0, 0
+    return jsonify({'total': total_ativos, 'disponiveis': total_disponiveis, 'em_uso': total_em_uso})
+
+@app.route('/recuperar_senha', methods=['GET', 'POST'])
+def recuperar_senha(): return render_template('recuperar_senha.html')
+
+@app.route('/deletar_ativo/<int:id>')
+def deletar_ativo(id):
     ativo = Ativo.query.get_or_404(id)
-    Emprestimo.query.filter_by(ativo_id=id).delete()
     db.session.delete(ativo)
     db.session.commit()
     return redirect(url_for('admin'))
 
-@app.route('/admin/deletar_usuario/<int:id>')
+@app.route('/deletar_usuario/<int:id>')
 def deletar_usuario(id):
-    if 'user_id' not in session or not session.get('is_admin'):
-        return "Acesso negado.", 403
-        
     user = Usuario.query.get_or_404(id)
-    for emp in user.emprestimos:
-        ativo = Ativo.query.get(emp.ativo_id)
-        if ativo:
-            ativo.qtd_disponivel += emp.quantidade_pega
-        db.session.delete(emp)
-        
+    if user.emprestimos:
+        for emp in user.emprestimos:
+            if emp.status == 'Ativo':
+                ativo = Ativo.query.get(emp.ativo_id)
+                if ativo: ativo.qtd_disponivel += emp.quantidade_pega
+            db.session.delete(emp)
     db.session.delete(user)
     db.session.commit()
     return redirect(url_for('admin'))
 
+# ==========================================
+# RETIRAR E DEVOLVER MATERIAIS INTEGRADAS
+# ==========================================
+@app.route('/retirar/<int:id>', methods=['POST'])
+def retirar(id):
+    username_logado = session.get('username')
+    if not username_logado: return redirect(url_for('login'))
+    
+    usuario = Usuario.query.filter_by(username=username_logado).first()
+    ativo = Ativo.query.get_or_404(id)
+    qtd_a_pegar = int(request.form.get('qtd_a_pegar', 1))
+    
+    if usuario and ativo and ativo.qtd_disponivel >= qtd_a_pegar:
+        ativo.qtd_disponivel -= qtd_a_pegar
+        
+        # Cria a movimentação com status Ativo
+        novo_emprestimo = Emprestimo(
+            usuario_id=usuario.id,
+            ativo_id=ativo.id,
+            quantidade_pega=qtd_a_pegar,
+            status='Ativo',
+            data_retirada=datetime.now()
+        )
+        db.session.add(novo_emprestimo)
+        db.session.commit()
+        flash(f'{qtd_a_pegar} unidade(s) de {ativo.nome} retiradas!', 'sucesso')
+    else:
+        flash('Quantidade indisponível no estoque!', 'erro')
+        
+    return redirect(url_for('pegar_itens'))
+
+@app.route('/devolver_item/<int:id>')
+def devolver_item(id):
+    if 'username' not in session: return redirect(url_for('login'))
+    
+    emp = Emprestimo.query.get_or_404(id)
+    if emp and emp.status == 'Ativo':
+        ativo = Ativo.query.get(emp.ativo_id)
+        if ativo:
+            ativo.qtd_disponivel += emp.quantidade_pega
+            
+        # MELHORIA 1: Em vez de deletar, atualizamos o histórico
+        emp.status = 'Devolvido'
+        emp.data_devolucao = datetime.now()
+        db.session.commit()
+        flash('Equipamento devolvido com sucesso!', 'sucesso')
+        
+    return redirect(url_for('pegar_itens'))
+
+@app.route('/pegar_itens')
+def pegar_itens():
+    username_logado = session.get('username')
+    if not username_logado: 
+        return redirect(url_for('login'))
+        
+    usuario_atual = Usuario.query.filter_by(username=username_logado).first()
+    mostrar_botao_admin = True if username_logado == 'admin' or (usuario_atual and usuario_atual.is_admin) else False
+    
+    ativos = Ativo.query.all()
+    # MELHORIA 1: Filtrando para mostrar na tela do usuário apenas os empréstimos pendentes ('Ativo')
+    meus_emprestimos = Emprestimo.query.filter_by(usuario_id=usuario_atual.id, status='Ativo').all() if usuario_atual else []
+    user_nome = usuario_atual.nome if usuario_atual else 'Admin'
+    
+    return render_template(
+        'pegar_itens.html', 
+        ativos=ativos, 
+        meus_emprestimos=meus_emprestimos, 
+        mostrar_botao_admin=mostrar_botao_admin, 
+        user_nome=user_nome
+    )
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True) 
