@@ -5,8 +5,9 @@
     font-family: 'Inter', sans-serif;
 }
 
-.cadastro-page {
-    background-color: #f8f9fa;
+/* Força o degradê direto no fundo da página, independente da classe */
+body, .cadastro-page {
+    background: linear-gradient(135deg, #00b960 0%, #044f2d 50%, #01170c 100%) !important;
     min-height: 100vh;
     padding: 40px 20px;
 }
@@ -16,9 +17,10 @@
     margin: 0 auto;
 }
 
+/* Mudado para branco para dar leitura perfeita sobre o fundo verde escuro */
 .btn-back {
     text-decoration: none;
-    color: #6c757d;
+    color: #ffffff; 
     font-weight: 600;
     font-size: 14px;
     display: inline-block;
@@ -27,14 +29,14 @@
 }
 
 .btn-back:hover {
-    color: #007bff;
+    color: #d4edda;
 }
 
 .form-card {
     background: #ffffff;
     padding: 40px;
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .form-card h2 {
@@ -78,7 +80,7 @@
 .btn-save {
     width: 100%;
     padding: 14px;
-    background-color: #28a745; /* Verde para indicar "salvar" */
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 8px;

@@ -1,21 +1,116 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-body { background-color: #f8f9fa; padding: 40px 20px; }
-.dashboard-container { max-width: 1100px; margin: 0 auto; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', sans-serif; 
+}
 
-.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-.btn-new { background-color: #007bff; color: white; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; }
+/* 1. FORÇA O DEGRADÊ NA CAMADA MAIS ALTA DA PÁGINA */
+html, body { 
+    background: linear-gradient(135deg, #00b960 0%, #044f2d 50%, #01170c 100%) !important;
+    min-height: 100vh !important;
+    padding: 40px 20px; 
+    color: #ffffff;
+}
 
-.table-card { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-th { background-color: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #495057; }
-td { padding: 16px 18px; border-top: 1px solid #f1f3f5; font-size: 15px; }
+/* 2. REMOVE PONTOS CEGOS BRANCOS (Garante que nenhuma div principal herde fundo branco) */
+#app, .wrapper, .main-panel, .content, main {
+    background: transparent !important;
+}
 
-.status-pill { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-.status-disponivel { background-color: #d4edda; color: #155724; }
-.status-uso { background-color: #e7f3ff; color: #004085; }
+.dashboard-container { 
+    max-width: 1100px; 
+    margin: 0 auto; 
+    background: transparent !important; /* Força transparência no container */
+}
 
-.select-user { padding: 5px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; }
+.header-actions { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 30px; 
+}
 
-.btn-action { background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-.btn-action-success { background-color: #28a745; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; }
+/* 3. CORES DOS TEXTOS (Para contrastar com o verde escuro) */
+.header-actions h1, 
+.header-actions p, 
+.dashboard-container h2, 
+.dashboard-container h3, 
+h2, h3 { 
+    color: #ffffff !important; 
+}
 
+/* 4. OS CARDS E AS TABELAS CONTINUAM BRANCOS (Igual ao card de Login) */
+.table-card, .metric-card, .card { 
+    background: #ffffff !important; /* Os blocos internos de dados continuam brancos */
+    border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
+    overflow: hidden; 
+    margin-bottom: 40px; 
+    padding: 20px;
+}
+
+/* Garante que o texto DENTRO das tabelas/cards brancos permaneça escuro para leitura */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+th { 
+    background-color: #f8f9fa; 
+    padding: 18px; 
+    text-align: left; 
+    font-size: 13px; 
+    color: #495057; 
+}
+
+td { 
+    padding: 16px 18px; 
+    border-top: 1px solid #f1f3f5; 
+    font-size: 15px; 
+    color: #333333; 
+}
+
+.status-pill { 
+    padding: 6px 12px; 
+    border-radius: 20px; 
+    font-size: 12px; 
+    font-weight: 600; 
+}
+
+.status-disponivel { 
+    background-color: #d4edda; 
+    color: #155724; 
+}
+
+.status-uso { 
+    background-color: #e7f3ff; 
+    color: #004085; 
+}
+
+.select-user { 
+    padding: 5px; 
+    border-radius: 6px; 
+    border: 1px solid #ddd; 
+    font-size: 12px; 
+    color: #333;
+}
+
+.btn-action { 
+    background-color: #007bff; 
+    color: white; 
+    border: none; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 12px; 
+}
+
+.btn-action-success { 
+    background-color: #28a745; 
+    color: white; 
+    text-decoration: none; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-size: 12px; 
+}

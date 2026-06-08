@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Trackit</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
+            background: linear-gradient(135deg, #00b960 0%, #044f2d 50%, #01170c 100%) !important;
+            min-height: 100vh;
+            color: #ffffff !important;
             padding: 40px 20px;
-            color: #333;
+            margin: 0;
         }
         .admin-container {
             max-width: 1200px;
@@ -24,23 +26,26 @@
             margin-bottom: 35px;
         }
         .header-title h1 {
+            color: #ffffff !important;
             font-size: 28px;
             font-weight: 700;
             margin: 0 0 5px 0;
-            color: #111;
         }
         .header-title p {
+            color: #a0aec0 !important;
             margin: 0;
-            color: #666;
             font-size: 15px;
         }
         .header-actions {
             display: flex;
             gap: 12px;
+            align-items: center;
         }
+        
+        /* Força os botões do topo a terem o estilo correto e visível */
         .btn-primary {
-            background-color: #2b7fff;
-            color: white;
+            background-color: #2b7fff !important;
+            color: white !important;
             padding: 10px 20px;
             border-radius: 10px;
             text-decoration: none;
@@ -48,14 +53,10 @@
             font-size: 14px;
             border: none;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover {
-            background-color: #1a66ff;
         }
         .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+            background-color: #6c757d !important;
+            color: white !important;
             padding: 10px 20px;
             border-radius: 10px;
             text-decoration: none;
@@ -65,62 +66,32 @@
             cursor: pointer;
         }
         .btn-danger {
-            background-color: #dc3545;
-            color: white;
+            background-color: #dc3545 !important;
+            color: white !important;
             padding: 10px 20px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
             font-size: 14px;
         }
-        
-        /* Filtro Dinâmico */
-        .filter-section {
-            background: white;
-            padding: 20px 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f3f5;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .filter-section label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        .filter-select {
-            padding: 10px 16px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            color: #1e293b;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            outline: none;
-            min-width: 280px;
-            cursor: pointer;
-        }
 
-        /* Grid de Cards */
+        /* Corrige o Grid das Métricas para ficarem lado a lado */
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+            gap: 20px !important;
             margin-bottom: 40px;
         }
         .card-metric {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f3f5;
+            background: white !important;
+            padding: 24px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
         }
         .card-metric h3 {
             margin: 0;
             font-size: 13px;
-            color: #8c98a5;
+            color: #8c98a5 !important;
             font-weight: 500;
             text-transform: uppercase;
         }
@@ -128,126 +99,32 @@
             margin: 12px 0 0 0;
             font-size: 36px;
             font-weight: 700;
-            color: #1e293b;
+            color: #1e293b !important;
         }
-        .card-available h3, .card-available .metric-number { color: #28a745; }
-        .card-in-use h3, .card-in-use .metric-number { color: #2b7fff; }
-        .card-users h3, .card-users .metric-number { color: #6f42c1; }
+        .card-available h3, .card-available .metric-number { color: #28a745 !important; }
+        .card-in-use h3, .card-in-use .metric-number { color: #2b7fff !important; }
+        .card-users h3, .card-users .metric-number { color: #6f42c1 !important; }
 
-        /* Tabelas */
-        .table-section {
-            background: white;
+        /* Ajustes das seções brancas das tabelas */
+        .table-section, .filter-section {
+            background: white !important;
             padding: 30px;
             border-radius: 18px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f3f5;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
             margin-bottom: 40px;
         }
         .table-section h2 {
             margin: 0 0 24px 0;
             font-size: 18px;
             font-weight: 600;
-            color: #1e293b;
+            color: #1e293b !important;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .admin-container h2 {
+            color: #ffffff !important;
+            margin-bottom: 15px;
         }
-        th {
-            color: #8c98a5;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 16px 20px;
-            border-bottom: 2px solid #f1f3f5;
-            text-transform: uppercase;
-            text-align: left;
-        }
-        td {
-            padding: 18px 20px;
-            border-bottom: 1px solid #f1f3f5;
-            font-size: 14px;
-            color: #4a5568;
-        }
-        
-        /* Sistema Ocultar/Visualizar Senha */
-        .password-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .password-hidden {
-            letter-spacing: 3px;
-            font-weight: bold;
-            color: #94a3b8;
-        }
-        .btn-view-password {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #475569;
-        }
-        .btn-view-password:hover {
-            background: #e2e8f0;
-        }
-
-        .admin-badge {
-            background-color: #ffe4e6;
-            color: #e11d48;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 6px;
-            margin-left: 6px;
-        }
-
-        /* Listas Retráteis */
-        .collapsible-container { margin-top: 4px; }
-        .collapsible-trigger {
-            background: #eef2f7;
-            color: #4a5568;
-            border: 1px solid #e2e8f0;
-            padding: 5px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .collapsible-trigger .arrow-icon {
-            transition: transform 0.2s ease;
-        }
-        .collapsible-trigger.active .arrow-icon { transform: rotate(180deg); }
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.25s ease-out;
-        }
-        .collapsible-content.show { max-height: 300px; overflow-y: auto; margin-top: 8px; }
-
-        /* Estilos do Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; display: none;
-        }
-        .modal-card {
-            background: white; padding: 30px; border-radius: 16px;
-            width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .modal-card h3 { margin-top: 0; font-size: 18px; color: #1e293b; }
-        .modal-select {
-            width: 100%; padding: 10px; border-radius: 8px;
-            border: 1px solid #cbd5e1; margin: 15px 0; font-family: sans-serif;
-        }
-        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+        th { color: #8c98a5 !important; }
+        td { color: #4a5568 !important; }
     </style>
 </head>
 <body>
@@ -267,9 +144,9 @@
             </div>
         </header>
 
-        <section class="filter-section">
-            <label for="equipamentoFilter">Visualizar métricas de:</label>
-            <select id="equipamentoFilter" class="filter-select">
+        <section class="filter-section" style="display: flex; align-items: center; gap: 16px;">
+            <label for="equipamentoFilter" style="font-size: 14px; font-weight: 600; color: #4a5568;">Visualizar métricas de:</label>
+            <select id="equipamentoFilter" class="filter-select" style="padding: 10px 16px; font-size: 14px; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; min-width: 280px; cursor: pointer;">
                 <option value="todos">Todos os Equipamentos</option>
                 {% for ativo in ativos %}
                     <option value="{{ ativo.id }}">{{ ativo.nome }} - [Lab {{ ativo.laboratorio }}]</option>
@@ -296,8 +173,8 @@
             </div>
         </section>
 
+        <h2>Equipamentos Registrados</h2>
         <section class="table-section">
-            <h2>Equipamentos Registrados</h2>
             <table>
                 <thead>
                     <tr>
@@ -327,11 +204,11 @@
                         <td>
                             {% if ativo.emprestimos %}
                                 <div class="collapsible-container">
-                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)">
+                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)" style="background: #eef2f7; color: #4a5568; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                                         Ver Alunos ({{ ativo.emprestimos|length }}) <span class="arrow-icon">▼</span>
                                     </div>
-                                    <div class="collapsible-content">
-                                        <ul style="margin: 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
+                                    <div class="collapsible-content" style="max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out;">
+                                        <ul style="margin: 8px 0 0 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
                                         {% for emp in ativo.emprestimos %}
                                             <li>{{ emp.usuario.nome }} <strong>({{ emp.quantidade_pega }} un)</strong></li>
                                         {% endfor %}
@@ -349,8 +226,8 @@
             </table>
         </section>
 
+        <h2>Usuários Registrados</h2>
         <section class="table-section">
-            <h2>Usuários Registrados</h2>
             <table>
                 <thead>
                     <tr>
@@ -368,25 +245,25 @@
                         <td>
                             <strong>{{ user.nome }}</strong>
                             {% if user.is_admin %}
-                                <span class="admin-badge">Admin</span>
+                                <span class="admin-badge" style="background-color: #ffe4e6; color: #e11d48; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; margin-left: 6px;">Admin</span>
                             {% endif %}
                         </td>
                         <td>{{ user.cpf }}</td>
                         <td><span style="background: #eef2f7; padding: 4px 8px; border-radius:6px; font-family: monospace;">@{{ user.username }}</span></td>
                         <td>
-                            <div class="password-container">
-                                <span id="pwd-{{ user.id }}" class="password-hidden">••••••</span>
-                                <button class="btn-view-password" onclick="solicitarRevelarSenha('{{ user.id }}')">Revelar</button>
+                            <div class="password-container" style="display: flex; align-items: center; gap: 10px;">
+                                <span id="pwd-{{ user.id }}" class="password-hidden" style="letter-spacing: 3px; font-weight: bold; color: #94a3b8;">••••••</span>
+                                <button class="btn-view-password" onclick="solicitarRevelarSenha('{{ user.id }}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600; color: #475569;">Revelar</button>
                             </div>
                         </td>
                         <td>
                             {% if user.emprestimos %}
                                 <div class="collapsible-container">
-                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)">
+                                    <div class="collapsible-trigger" onclick="toggleDropdown(this)" style="background: #eef2f7; color: #4a5568; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                                         Ver Itens ({{ user.emprestimos|length }}) <span class="arrow-icon">▼</span>
                                     </div>
-                                    <div class="collapsible-content">
-                                        <ul style="margin: 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
+                                    <div class="collapsible-content" style="max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out;">
+                                        <ul style="margin: 8px 0 0 0; padding-left: 15px; font-size: 13px; line-height: 1.6;">
                                         {% for emp in user.emprestimos %}
                                             <li>{{ emp.ativo.nome }} [Lab {{ emp.ativo.laboratorio }}] <strong>({{ emp.quantidade_pega }} un)</strong></li>
                                         {% endfor %}
@@ -405,18 +282,18 @@
         </section>
     </div>
 
-    <div id="adminModal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>Adicionar Admin</h3>
+    <div id="adminModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 1000;">
+        <div class="modal-card" style="background: white; padding: 30px; border-radius: 16px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; font-size: 18px; color: #1e293b;">Adicionar Admin</h3>
             <p style="font-size: 13px; color: #666; margin: 0;">Selecione um usuário cadastrado no sistema para validá-lo com acesso ao painel administrativo:</p>
             <form action="{{ url_for('promover_admin') }}" method="POST">
-                <select name="usuario_id" class="modal-select" required>
+                <select name="usuario_id" class="modal-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin: 15px 0; font-family: sans-serif;" required>
                     <option value="" disabled selected>Escolha o usuário...</option>
                     {% for user in usuarios_comuns %}
                         <option value="{{ user.id }}">{{ user.nome }} (CPF: {{ user.cpf }})</option>
                     {% endfor %}
                 </select>
-                <div class="modal-buttons">
+                <div class="modal-buttons" style="display: flex; justify-content: flex-end; gap: 10px;">
                     <button type="button" class="btn-secondary" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">Validar como Admin</button>
                 </div>
@@ -425,10 +302,8 @@
     </div>
 
     <script>
-        // 1. Solicitação Segura para Revelar Senha
         function solicitarRevelarSenha(usuarioId) {
             const senhaAdmin = prompt("Segurança Trackit: Digite sua senha pessoal de administrador para visualizar:");
-            
             if (senhaAdmin === null || senhaAdmin.trim() === "") return;
 
             fetch('/api/verificar_senha_admin', {
@@ -450,7 +325,6 @@
             .catch(error => console.error('Erro na validação:', error));
         }
 
-        // 2. Filtro de Métricas
         const filterSelect = document.getElementById('equipamentoFilter');
         if (filterSelect) {
             filterSelect.addEventListener('change', (e) => {
@@ -464,18 +338,23 @@
             });
         }
 
-        // 3. Dropdowns Retráteis
         function toggleDropdown(el) {
             el.classList.toggle('active');
             const content = el.nextElementSibling;
             if (content) {
                 content.classList.toggle('show');
+                if (content.classList.contains('show')) {
+                    content.style.maxHeight = '300px';
+                    content.style.overflowY = 'auto';
+                    content.style.marginTop = '8px';
+                } else {
+                    content.style.maxHeight = '0px';
+                }
             }
         }
 
-        // 4. Controle do Modal de Promoção
-        function abrirModal() { document.getElementById('adminModal').style.style.display = 'flex'; }
-        function fecharModal() { document.getElementById('adminModal').style.style.display = 'none'; }
+        function abrirModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('adminModal').style.display = 'none'; }
     </script>
 </body>
 </html>
