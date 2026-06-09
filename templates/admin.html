@@ -14,6 +14,8 @@
             color: #ffffff !important;
             padding: 40px 20px;
             margin: 0;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
         }
         .admin-container {
             max-width: 1200px;
@@ -42,7 +44,6 @@
             align-items: center;
         }
         
-        /* Força os botões do topo a terem o estilo correto e visível */
         .btn-primary {
             background-color: #2b7fff !important;
             color: white !important;
@@ -65,28 +66,52 @@
             border: none;
             cursor: pointer;
         }
-        .btn-danger {
-            background-color: #dc3545 !important;
-            color: white !important;
-            padding: 10px 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
+
+        /* Botão LOGOUT - Vermelho Vinho com Letras Pretas */
+        .btn-logout-global {
+            background-color: #800020 !important;
+            color: #000000 !important;
+            padding: 10px 24px !important;
+            border-radius: 12px !important;
+            text-decoration: none !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            letter-spacing: 0.5px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            transition: background 0.2s ease;
+        }
+        .btn-logout-global:hover {
+            background-color: #5c0017 !important;
         }
 
-        /* Corrige o Grid das Métricas para ficarem lado a lado */
+        /* Grid corrigido para não esticar os cards verticalmente */
         .metrics-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+            grid-template-columns: repeat(4, 1fr) !important;
             gap: 20px !important;
             margin-bottom: 40px;
+            align-items: start !important;
         }
+        @media (max-width: 900px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         .card-metric {
             background: white !important;
             padding: 24px !important;
             border-radius: 16px !important;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+            height: auto !important;
         }
         .card-metric h3 {
             margin: 0;
@@ -105,7 +130,6 @@
         .card-in-use h3, .card-in-use .metric-number { color: #2b7fff !important; }
         .card-users h3, .card-users .metric-number { color: #6f42c1 !important; }
 
-        /* Ajustes das seções brancas das tabelas */
         .table-section, .filter-section {
             background: white !important;
             padding: 30px;
@@ -140,7 +164,7 @@
                     <button class="btn-secondary" onclick="abrirModal()">Adicionar Admin</button>
                 {% endif %}
                 <a href="{{ url_for('cadastro_equipamento') }}" class="btn-primary">Cadastrar Equipamentos</a>
-                <a href="{{ url_for('logout') }}" class="btn-danger">Sair</a>
+                <a href="{{ url_for('logout') }}" class="btn-logout-global">LOGOUT</a>
             </div>
         </header>
 
