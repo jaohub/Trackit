@@ -38,6 +38,28 @@
             margin: 0;
             font-size: 15px;
         }
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Botão para voltar ao Painel Admin se for Administrador */
+        .btn-admin-panel {
+            background-color: #2b7fff !important;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .btn-admin-panel:hover {
+            background-color: #1a66db !important;
+        }
 
         /* Botão LOGOUT - Vermelho Vinho com Letras Pretas */
         .btn-logout-global {
@@ -92,10 +114,13 @@
         
         <header class="user-header">
             <div class="header-welcome">
-                <h1>Olá, {{ session['usuario_nome'] }}! 👋</h1>
+                <h1>Olá, {% if current_user is defined and current_user.nome %}{{ current_user.nome }}{% else %}Usuário{% endif %}! 👋</h1>
                 <p>Consulte o estoque e retire os equipamentos necessários</p>
             </div>
-            <div>
+            <div class="header-actions">
+                {% if current_user is defined and current_user.is_admin %}
+                    <a href="{{ url_for('admin') }}" class="btn-admin-panel">Painel Admin</a>
+                {% endif %}
                 <a href="{{ url_for('logout') }}" class="btn-logout-global">LOGOUT</a>
             </div>
         </header>
@@ -179,7 +204,6 @@
     </div>
 
     <script>
-        // Sistema de busca dinâmica em tempo real
         const searchBar = document.getElementById('searchBar');
         if (searchBar) {
             searchBar.addEventListener('keyup', function(e) {
