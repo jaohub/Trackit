@@ -5,6 +5,31 @@
     <title>Trackit - Painel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<<<<<<< Updated upstream
+=======
+    
+    <style>
+        /* Botão LOGOUT - Vermelho Vinho com Letras Pretas */
+        .btn-logout-global {
+            background-color: #800020 !important;
+            color: #000000 !important;
+            padding: 10px 24px !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            letter-spacing: 0.5px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: none !important;
+            transition: background 0.2s ease;
+        }
+        .btn-logout-global:hover {
+            background-color: #5c0017 !important;
+        }
+    </style>
+>>>>>>> Stashed changes
 </head>
 <body>
     <div class="dashboard-container">
@@ -39,7 +64,11 @@
                 </a>
                 {% endif %}
                 
+<<<<<<< Updated upstream
                 <a href="{{ url_for('logout') }}" class="btn-new" style="background-color: #dc3545;">Sair</a>
+=======
+                <a href="{{ url_for('logout') }}" class="btn-logout-global">Sair</a>
+>>>>>>> Stashed changes
             </div>
         </header>
 
@@ -127,7 +156,11 @@
             let linhas = tabela.getElementsByTagName('tr');
 
             for (let i = 1; i < linhas.length; i++) {
+<<<<<<< Updated upstream
                 let colunaNome = linhas[i].getElementsByClassName('nome-ativo')[0];
+=======
+                let colunaNome = lines[i].getElementsByClassName('nome-ativo')[0];
+>>>>>>> Stashed changes
                 if (colunaNome) {
                     let textoNome = colunaNome.textContent || colunaNome.innerText;
                     if (textoNome.toLowerCase().indexOf(input) > -1) {

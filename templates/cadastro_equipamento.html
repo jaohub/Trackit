@@ -3,124 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Equipamento - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Trackit - Novo Equipamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body.login-page {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Fundo usando o degradê verde original do projeto */
+        body {
             margin: 0;
-        }
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 18px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f3f5;
-            width: 100%;
-            max-width: 450px;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0b4b20 0%, #0a442d 50%, #01170c 100%) !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-sizing: border-box;
         }
-        .login-header h1 {
+
+        /* Card de Cadastro de Itens - Efeito de Vidro Fosco (Mesmo padrão do Login) */
+        .equipment-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .equipment-card h1 {
+            color: #ffffff;
             font-size: 26px;
             font-weight: 700;
-            color: #1e293b;
-            margin: 0 0 8px 0;
-            text-align: center;
+            margin-top: 0;
+            margin-bottom: 8px;
         }
-        .login-header p {
-            font-size: 14px;
-            color: #666;
-            margin: 0 0 32px 0;
-            text-align: center;
+
+        .equipment-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 25px;
+            margin-top: 0;
         }
+
         .input-group {
             margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            text-align: left;
         }
+
         .input-group label {
-            font-size: 13px;
+            display: block;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
             font-weight: 600;
-            color: #4a5568;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
-        .input-group input, .input-group select {
-            font-family: 'Inter', sans-serif;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
+
+        /* Inputs e Selects estilizados em Harmonia */
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
             border-radius: 10px;
             font-size: 15px;
-            color: #1e293b;
-            background-color: #ffffff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            color: #111111;
+            font-family: 'Inter', sans-serif;
             outline: none;
             box-sizing: border-box;
-            width: 100%;
+            transition: all 0.2s ease;
         }
-        .input-group input:focus, .input-group select:focus {
-            border-color: #2b7fff;
-            box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.1);
+
+        /* Alinhamento da setinha do Select */
+        .input-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 40px;
+            cursor: pointer;
         }
-        .btn-login {
+
+        .input-group input:focus,
+        .input-group select:focus {
+            background: #ffffff;
+            border-color: #800020;
+            box-shadow: 0 0 10px rgba(128, 0, 32, 0.2);
+        }
+
+        /* Botão Cadastrar - Vermelho Vinho com Fonte Preta */
+        .btn-submit {
             width: 100%;
             padding: 14px;
-            background-color: #2b7fff;
-            color: white;
+            background-color: #800020 !important;
+            color: #000000 !important;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
             margin-top: 10px;
         }
-        .btn-login:hover {
-            background-color: #1a66ff;
+
+        .btn-submit:hover {
+            background-color: #5c0017 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn-back {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
+
+        /* Links de retorno */
+        .card-footer {
+            margin-top: 25px;
+        }
+
+        .card-footer a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
             text-decoration: none;
-            font-weight: 500;
+            transition: color 0.2s ease;
         }
-        .btn-back:hover {
-            color: #111;
+
+        .card-footer a:hover {
+            color: #ffffff;
             text-decoration: underline;
         }
     </style>
 </head>
-<body class="login-page">
-    <div class="login-card">
-        <div class="login-header">
-            <h1>Novo Equipamento</h1>
-            <p>Insira as informações para atualizar o estoque</p>
-        </div>
+<body>
+
+    <div class="equipment-card">
+        <h1>Novo Equipamento</h1>
+        <p>Insira as informações para atualizar o estoque.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; 
+                          background-color: {% if category == 'sucesso' %}#d4edda{% else %}#f8d7da{% endif %}; 
+                          color: {% if category == 'sucesso' %}#155724{% else %}#721c24{% endif %};">
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         
-        <form action="/admin/cadastro_equipamento" method="POST">
+        <form action="{{ url_for('cadastro_equipamento') }}" method="POST">
+            
             <div class="input-group">
-                <label>Nome do Equipamento</label>
-                <input type="text" name="nome" placeholder="Ex: MONITOR AOC 24" oninput="this.value = this.value.toUpperCase()" required>
+                <label for="nome">Nome do Equipamento</label>
+                <input type="text" id="nome" name="nome" placeholder="Ex: MONITOR AOC 24" required autocomplete="off">
             </div>
             
             <div class="input-group">
-                <label>Código de Patrimônio</label>
-                <input type="text" name="patrimonio" placeholder="Ex: MON-1234" oninput="this.value = this.value.toUpperCase()" required>
+                <label for="patrimonio">Código de Patrimônio</label>
+                <input type="text" id="patrimonio" name="patrimonio" placeholder="Ex: MON-1234" required autocomplete="off">
             </div>
             
             <div class="input-group">
-                <label>Laboratório / Origem</label>
-                <select name="laboratorio" required>
+                <label for="laboratorio">Laboratório / Origem</label>
+                <select id="laboratorio" name="laboratorio" required>
                     <option value="" disabled selected>Selecione o laboratório...</option>
                     <option value="1">Laboratório 1</option>
                     <option value="2">Laboratório 2</option>
@@ -128,16 +176,19 @@
                     <option value="4">Laboratório 4</option>
                 </select>
             </div>
-            
+
             <div class="input-group">
-                <label>Quantidade em Estoque</label>
-                <input type="number" name="quantidade" value="1" min="1" required>
+                <label for="quantidade">Quantidade em Estoque</label>
+                <input type="number" id="quantidade" name="quantidade" value="1" min="1" required>
             </div>
             
-            <button type="submit" class="btn-login">Cadastrar no Sistema</button>
+            <button type="submit" class="btn-submit">CADASTRAR NO SISTEMA</button>
         </form>
         
-        <a href="{{ url_for('admin') }}" class="btn-back">Voltar ao Painel Administrativo</a>
+        <div class="card-footer">
+            <a href="{{ url_for('admin') }}">Voltar ao Painel Administrativo</a>
+        </div>
     </div>
+
 </body>
 </html>

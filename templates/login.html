@@ -1,183 +1,165 @@
 <!DOCTYPE html>
-<html lang="pt-br)
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Trackit</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Trackit - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Ajustes para garantir a identidade visual idêntica ao tema do Trackit */
-        body.login-page {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Fundo usando o degradê verde exato do seu projeto */
+        body {
             margin: 0;
-        }
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 18px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f3f5;
-            width: 100%;
-            max-width: 450px;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0b4b20 0%, #0a442d 50%, #01170c 100%) !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-sizing: border-box;
         }
-        .login-header h1 {
-            font-size: 32px;
+
+        /* Card de Login - Efeito de Vidro Fosco Moderno */
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .login-card h1 {
+            color: #ffffff;
+            font-size: 28px;
             font-weight: 700;
-            color: #1e293b;
-            margin: 0 0 8px 0;
-            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
         }
-        .login-header p {
-            font-size: 15px;
-            color: #666;
-            margin: 0 0 32px 0;
-            text-align: center;
-        }
+
         .input-group {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            margin-bottom: 22px;
+            text-align: left;
         }
+
         .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.85);
             font-size: 14px;
             font-weight: 600;
-            color: #4a5568;
+            margin-bottom: 8px;
         }
+
         .input-group input {
-            font-family: 'Inter', sans-serif;
+            width: 100%;
             padding: 14px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            border-radius: 10px;
             font-size: 15px;
-            color: #1e293b;
-            background-color: #ffffff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            color: #111111;
+            font-family: 'Inter', sans-serif;
             outline: none;
             box-sizing: border-box;
-            width: 100%;
+            transition: all 0.2s ease;
         }
+
+        /* Foco do input ativa o contorno Vinho */
         .input-group input:focus {
-            border-color: #2b7fff;
-            box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.1);
+            background: #ffffff;
+            border-color: #800020;
+            box-shadow: 0 0 10px rgba(128, 0, 32, 0.2);
         }
+
+        /* Botão de Login - Customizado em Vinho com Letras Pretas */
         .btn-login {
             width: 100%;
             padding: 14px;
-            background-color: #2b7fff;
-            color: white;
+            background-color: #800020 !important;
+            color: #000000 !important;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
             margin-top: 10px;
         }
+
         .btn-login:hover {
-            background-color: #1a66ff;
+            background-color: #5c0017 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        .footer-links {
-            text-align: center;
+
+        /* Alinhamento dos links de rodapé */
+        .login-footer {
             margin-top: 25px;
-            font-size: 14px;
-            color: #666;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 12px;
         }
-        .footer-links a {
-            color: #2b7fff;
+
+        .login-footer a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
             text-decoration: none;
-            font-weight: 600;
+            transition: color 0.2s ease;
         }
-        .footer-links a:hover {
+
+        .login-footer a:hover {
+            color: #ffffff;
             text-decoration: underline;
         }
-        /* Estilos adicionais para os blocos de alerta do Flask */
-        .alert {
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            font-size: 14px;
+
+        .btn-register-link {
+            color: #ffffff !important;
             font-weight: 600;
-            text-align: center;
-        }
-        .alert-erro {
-            background-color: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-        .alert-sucesso {
-            background-color: #d1e7dd;
-            color: #0f5132;
-            border: 1px solid #badbcc;
         }
     </style>
 </head>
-<body class="login-page">
+<body>
+
     <div class="login-card">
-        <div class="login-header">
-            <h1>Login</h1>
-            <p>Gerencie as ferramentas do seu laboratório</p>
-        </div>
+        <h1>TRACKIT</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for categoria, mensagem in messages %}
-                    <div class="alert {% if categoria == 'sucesso' %}alert-sucesso{% else %}alert-erro{% endif %}">
-                        {{ mensagem }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="padding: 10px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; 
+                          background-color: {% if category == 'sucesso' %}#d4edda{% else %}#f8d7da{% endif %}; 
+                          color: {% if category == 'sucesso' %}#155724{% else %}#721c24{% endif %};">
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
         {% endwith %}
         
-        <form action="/login" method="POST">
+        <form action="{{ url_for('login') }}" method="POST">
             <div class="input-group">
-                <label>CPF</label>
-                <input type="text" id="cpf_login" name="cpf" placeholder="000.000.000-00" autocomplete="off" required>
+                <label for="cpf">CPF ou Usuário</label>
+                <input type="text" id="cpf" name="cpf" placeholder="Digite seu CPF ou Admin" required autocomplete="off">
             </div>
             
             <div class="input-group">
-                <label>Senha</label>
-                <input type="password" name="senha" placeholder="••••••••" required>
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
             </div>
             
-            <button type="submit" class="btn-login">Entrar no Sistema</button>
+            <button type="submit" class="btn-login">LOGIN</button>
         </form>
         
-        <div class="footer-links">
-            <a href="{{ url_for('recuperar_senha') }}">Esqueceu a senha?</a>
-            <a href="{{ url_for('cadastro_usuario') }}">Criar Conta</a>
+        <div class="login-footer">
+            <a href="{{ url_for('cadastro_usuario') }}" class="btn-register-link">Criar Usuário</a>
+            <a href="{{ url_for('recuperar_senha') }}">Esqueceu sua senha?</a>
         </div>
     </div>
 
-    <script>
-        const cpfLogin = document.getElementById('cpf_login');
-
-        cpfLogin.addEventListener('input', (e) => {
-            let value = e.target.value;
-            
-            // Se o usuário começar a digitar 'admin', ignora o bloqueio e permite texto livre
-            if (value.toLowerCase().startsWith('a') || value.toLowerCase().startsWith('ad')) {
-                return; 
-            }
-            
-            // Caso contrário (se for número), limpa letras e aplica formatação de CPF
-            value = value.replace(/\D/g, ''); 
-            
-            if (value.length > 3) value = value.substring(0, 3) + '.' + value.substring(3);
-            if (value.length > 7) value = value.substring(0, 7) + '.' + value.substring(7);
-            if (value.length > 11) value = value.substring(0, 11) + '-' + value.substring(11, 13);
-            
-            e.target.value = value;
-        });
-    </script>
 </body>
 </html>
