@@ -28,7 +28,7 @@ class Ativo(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     patrimonio = db.Column(db.String(50), unique=True, nullable=False)
     laboratorio = db.Column(db.Integer, nullable=False)
-    quantidade = db.Column(db.Integer, nullable=False)       
+    quantidade = db.Column(db.Integer, nullable=False)      
     qtd_disponivel = db.Column(db.Integer, nullable=False)   
     emprestimos = db.relationship('Emprestimo', backref='ativo', lazy=True)
 
@@ -47,7 +47,7 @@ class Emprestimo(db.Model):
 # ==========================================
 @app.route('/')
 def index():
-    # MODIFICADO: Remove qualquer sessão aberta para garantir que caia sempre no Login ao digitar a URL pura
+    # Remove qualquer sessão aberta para garantir que caia sempre no Login ao digitar a URL pura
     session.clear() 
     return redirect(url_for('login'))
 
@@ -62,7 +62,7 @@ def login():
             session['username'] = 'admin'
             return redirect(url_for('pegar_itens'))
             
-        # 2. VALIDAÇÃO POR CPF OU NOME COM CRIPTOGRAFIA (MELHORIA 3)
+        # 2. VALIDAÇÃO POR CPF OU NOME COM CRIPTOGRAFIA
         user = Usuario.query.filter((Usuario.cpf == login_input) | (Usuario.nome == login_input)).first()
         if user and check_password_hash(user.senha, senha):
             session['username'] = user.username
@@ -103,7 +103,7 @@ def cadastro_usuario():
             return render_template('cadastro_usuario.html')
 
         try:
-            # MELHORIA 3: Senha salva utilizando hash criptográfico seguro
+            # Senha salva utilizando hash criptográfico seguro
             senha_criptografada = generate_password_hash(senha)
             novo_usuario = Usuario(nome=nome, cpf=cpf, username=nome, senha=senha_criptografada, is_admin=False)
             db.session.add(novo_usuario)
@@ -129,24 +129,29 @@ def admin():
     if not username_logado:
         return redirect(url_for('login'))
     
-    if username_logado != 'admin':
+    # Validação do Usuário Fixo 'admin'
+    if username_logado == 'admin':
+        is_super_admin = True
+    else:
+        # Busca no banco de dados se o usuário da sessão existe de fato e é admin
         usuario_atual = Usuario.query.filter_by(username=username_logado).first()
+        
+        # SEGURANÇA CORRIGIDA: Se o usuário foi excluído ou is_admin for falso, barra na hora!
         if not usuario_atual or not usuario_atual.is_admin:
-            return "Acesso Negado!", 403
+            session.clear() # Limpa o cookie órfão/antigo
+            return redirect(url_for('login'))
+        
+        is_super_admin = False
 
     ativos = Ativo.query.all()
     usuarios = Usuario.query.all()
     usuarios_comuns = Usuario.query.filter_by(is_admin=False).all()
-    
-    # MELHORIA 1: Enviando o histórico permanente de movimentações para o admin
     historico_movimentacoes = Emprestimo.query.order_by(Emprestimo.id.desc()).all()
     
     total_ativos = db.session.query(db.func.sum(Ativo.quantidade)).scalar() or 0
     total_disponiveis = db.session.query(db.func.sum(Ativo.qtd_disponivel)).scalar() or 0
     total_em_uso = total_ativos - total_disponiveis
     total_users = Usuario.query.count()
-    
-    is_super_admin = (username_logado == 'admin')
     
     return render_template(
         'admin.html', 
@@ -167,7 +172,6 @@ def cadastro_equipamento():
         return redirect(url_for('login'))
     return render_template('cadastro_equipamento.html')
 
-# MELHORIA 3: Como as senhas usam hash, o Admin agora dá Reset na senha por segurança
 @app.route('/api/resetar_senha_usuario', methods=['POST'])
 def resetar_senha_usuario():
     data = request.json
@@ -189,7 +193,7 @@ def resetar_senha_usuario():
     if autenticado:
         user_alvo = Usuario.query.get(usuario_alvo_id)
         if user_alvo:
-            user_alvo.senha = generate_password_hash("senai123") # Nova senha padrão resetada
+            user_alvo.senha = generate_password_hash("senai123") 
             db.session.commit()
             return jsonify({'sucesso': True, 'mensagem': 'Senha resetada com sucesso para: senai123'})
             
@@ -262,7 +266,6 @@ def retirar(id):
     if usuario and ativo and ativo.qtd_disponivel >= qtd_a_pegar:
         ativo.qtd_disponivel -= qtd_a_pegar
         
-        # Cria a movimentação com status Ativo
         novo_emprestimo = Emprestimo(
             usuario_id=usuario.id,
             ativo_id=ativo.id,
@@ -288,11 +291,10 @@ def devolver_item(id):
         if ativo:
             ativo.qtd_disponivel += emp.quantidade_pega
             
-        # MELHORIA 1: Em vez de deletar, atualizamos o histórico
         emp.status = 'Devolvido'
         emp.data_devolucao = datetime.now()
         db.session.commit()
-        flash('Equipamento devolvido com sucesso!', 'sucesso')
+        flash('Equipamento unclaimed com sucesso!', 'sucesso')
         
     return redirect(url_for('pegar_itens'))
 
@@ -303,12 +305,20 @@ def pegar_itens():
         return redirect(url_for('login'))
         
     usuario_atual = Usuario.query.filter_by(username=username_logado).first()
+    
+    # SEGURANÇA ADICIONAL: Caso o usuário tenha sido deletado enquanto estava logado
+    if username_logado != 'admin' and not usuario_atual:
+        session.clear()
+        return redirect(url_for('login'))
+        
     mostrar_botao_admin = True if username_logado == 'admin' or (usuario_atual and usuario_atual.is_admin) else False
     
     ativos = Ativo.query.all()
-    # MELHORIA 1: Filtrando para mostrar na tela do usuário apenas os empréstimos pendentes ('Ativo')
     meus_emprestimos = Emprestimo.query.filter_by(usuario_id=usuario_atual.id, status='Ativo').all() if usuario_atual else []
     user_nome = usuario_atual.nome if usuario_atual else 'Admin'
+    
+    # Injeta a variável na sessão para compatibilidade total com o front-end estável
+    session['usuario'] = user_nome
     
     return render_template(
         'pegar_itens.html', 
@@ -321,4 +331,4 @@ def pegar_itens():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True) 
+    app.run(debug=True)
